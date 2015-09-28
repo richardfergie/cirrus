@@ -18,6 +18,7 @@ data App = App
     { appSettings    :: AppSettings
     , appStatic      :: Static -- ^ Settings for static file serving.
     , appConnPool    :: ConnectionPool -- ^ Database connection pool.
+    , adwordsConnPool :: ConnectionPool 
     , appHttpManager :: Manager
     , appLogger      :: Logger
     }
@@ -115,6 +116,11 @@ instance YesodPersist App where
         runSqlPool action $ appConnPool master
 instance YesodPersistRunner App where
     getDBRunner = defaultGetDBRunner appConnPool
+
+runAdWordsDB :: YesodDB App a -> Handler a
+runAdWordsDB action = do
+  master <- getYesod
+  runSqlPool action $ appConnPool master
 
 instance YesodAuth App where
     type AuthId App = UserId

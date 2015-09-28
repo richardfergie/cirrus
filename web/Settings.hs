@@ -26,6 +26,8 @@ data AppSettings = AppSettings
     -- ^ Directory from which to serve static files.
     , appDatabaseConf           :: PostgresConf
     -- ^ Configuration settings for accessing the database.
+    , adwordsDatabaseConf       :: PostgresConf
+    -- ^ Config settings for read only database access for AdWords
     , appRoot                   :: Text
     -- ^ Base for all generated URLs.
     , appHost                   :: HostPreference
@@ -64,6 +66,7 @@ instance FromJSON AppSettings where
 #endif
         appStaticDir              <- o .: "static-dir"
         appDatabaseConf           <- o .: "webdatabase"
+        adwordsDatabaseConf       <- o .: "adwordsdatabase"
         appRoot                   <- o .: "approot"
         appHost                   <- fromString <$> o .: "host"
         appPort                   <- o .: "port"

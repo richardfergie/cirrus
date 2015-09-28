@@ -57,11 +57,12 @@ makeFoundation appSettings = do
     -- logging function. To get out of this loop, we initially create a
     -- temporary foundation without a real connection pool, get a log function
     -- from there, and then create the real foundation.
-    let mkFoundation appConnPool = App {..}
+    let mkFoundation appConnPool adwordsConnPool = App {..}
         -- The App {..} syntax is an example of record wild cards. For more
         -- information, see:
         -- https://ocharles.org.uk/blog/posts/2014-12-04-record-wildcards.html
-        tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
+        tempFoundation = mkFoundation (error "connPool forced in tempFoundation")
+                                      (error "adwordsConnPool forced in tempFoundation")
         logFunc = messageLoggerSource tempFoundation appLogger
 
     -- Create the database connection pool
@@ -69,11 +70,18 @@ makeFoundation appSettings = do
         (pgConnStr  $ appDatabaseConf appSettings)
         (pgPoolSize $ appDatabaseConf appSettings)
 
+    adwpool <- flip runLoggingT logFunc $ createPostgresqlPool
+        (pgConnStr  $ adwordsDatabaseConf appSettings)
+        (pgPoolSize $ adwordsDatabaseConf appSettings)
+
     -- Perform database migration using our application's logging settings.
     runLoggingT (runSqlPool (runMigration migrateWeb) pool) logFunc
+    -- this shouldn't be able to migrate - will runtime error at startup
+    -- if tables don't match
+    runLoggingT (runSqlPool (runMigration migrateAdWords) adwpool) logFunc
 
     -- Return the foundation
-    return $ mkFoundation pool
+    return $ mkFoundation pool adwpool
 
 -- | Convert our foundation to a WAI Application by calling @toWaiAppPlain@ and
 -- applying some additional middlewares.
