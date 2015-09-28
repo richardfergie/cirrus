@@ -262,7 +262,11 @@ def downloadReports(reports,zeroimp,client,report_downloader):
 
   for report in reports:
     reportname = report['reportName']
-    filename = '/tmp/'+clientstring+reportname+today.strftime('%Y-%m-%d')+'.csv'
+    filename = '/tmp/' + ':'.join([
+                  clientstring,
+                  reportname,
+                  today.strftime('%Y-%m-%d')
+                  ])
     report_data = io.open(filename,'wb')
     stream_data = report_downloader.DownloadReportAsStream(
       report,
