@@ -17,13 +17,21 @@ ip-from-header: "_env:IP_FROM_HEADER:false"
 # mutable-static: false
 # skip-combining: false
 
-database:
-  user:     "_env:PGUSER:web"
-  password: "_env:PGPASS:web"
+webdatabase:
+  user:     "_env:WEBUSER:web"
+  password: "_env:WEBPASS:web"
   host:     "_env:PGHOST:localhost"
   port:     "_env:PGPORT:5432"
-  database: "_env:PGDATABASE:web"
-  poolsize: "_env:PGPOOLSIZE:10"
+  database: "_env:WEBDATABASE:web"
+  poolsize: "_env:WEBPOOLSIZE:10"
 
+adwordsdatabase:
+  user:     "_env:ADWUSER:web"
+  password: "_env:ADWPASS:web"
+  host:     "_env:PGHOST:localhost"
+  port:     "_env:PGPORT:5432"
+  database: "_env:ADWDATABASE:web"
+  poolsize: "_env:ADWPOOLSIZE:10"
+  
 copyright: Insert copyright statement here
 #analytics: UA-YOURCODE

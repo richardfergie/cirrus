@@ -7,8 +7,8 @@ import Database.Persist.Quasi
 -- You can find more information on persistent and how to declare entities
 -- at:
 -- http://www.yesodweb.com/book/persistent/
-share [mkPersist sqlSettings, mkMigrate "migrateAll"]
+share [mkPersist sqlSettings, mkMigrate "migrateWeb"]
     $(persistFileWith lowerCaseSettings "config/models")
 
-share [mkPersist sqlSettings, mkMigrate "migrateAll"]
+share [mkPersist sqlSettings, mkMigrate "migrateAdWords"]
     $(persistFileWith lowerCaseSettings "../database/persistent-model")

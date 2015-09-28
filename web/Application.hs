@@ -70,7 +70,7 @@ makeFoundation appSettings = do
         (pgPoolSize $ appDatabaseConf appSettings)
 
     -- Perform database migration using our application's logging settings.
-    runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
+    runLoggingT (runSqlPool (runMigration migrateWeb) pool) logFunc
 
     -- Return the foundation
     return $ mkFoundation pool

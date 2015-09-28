@@ -1,0 +1,90 @@
+CampaignStructure
+  campaignId Int
+  name Text
+  UniqueCampaignStructure campaignId
+  deriving Show
+AdGroupStructure
+  campaignId Int
+  adGroupId Int
+  name Text
+  UniqueAdGroupStructure adGroupId
+  deriving Show
+TextAdStructure
+  campaignId Int
+  adGroupId Int
+  adId Int
+  headline Text
+  description1 Text
+  description2 Text
+  displayUrl Text
+  destinationUrl Text
+  UniqueTextAdStructure adId adGroupId
+  deriving Show
+KeywordStructure
+  campaignId Int
+  adGroupId Int
+  keywordId Int
+  keyword Text
+  matchType Text
+  UniqueKeywordStructure keywordId adGroupId
+  deriving Show
+CampaignAttributes
+  campaignId Int
+  status Text
+  observed UTCTime
+  deriving Show
+AdGroupAttributes
+  campaignId Int
+  adGroupId Int
+  status Text
+  observed UTCTime
+  deriving Show
+TextAdAttributres
+  campaignId Int
+  adGroupId Int
+  adId Int
+  status Text
+  observed UTCTime
+  deriving Show
+KeywordAttributes
+  campaignId Int
+  adGroupId Int
+  keywordId Int
+  bid Double Maybe -- nothing if ad group bid?
+  qualityScore Int
+  firstPageBid Double
+  topOfPageBid Double
+  observed UTCTime
+  deriving Show
+CampaignPerformance
+  campaignId Int
+  day Day
+  network Text
+  clicks Int
+  impressions Int
+  cost Double
+  avgpos Double
+  conversions Int
+AdGroupPerformance
+  campaignId Int
+  adGroupId Int
+  day Day
+  network Text
+  clicks Int
+  impressions Int
+  cost Double
+  avgpos Double
+  conversions Int
+TextAdPerformance
+  campaignId Int
+  adGroupId Int
+  adId Int
+  keywordId Int
+  day Day
+  network Text
+  clicks Int
+  impressions Int
+  cost Double
+  avgpos Double
+  conversions Int
+  
