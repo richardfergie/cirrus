@@ -1,15 +1,18 @@
 CampaignStructure
+  accountId Int
   campaignId Int
   name Text
   UniqueCampaignStructure campaignId
   deriving Show
 AdGroupStructure
+  accountId Int
   campaignId Int
   adGroupId Int
   name Text
   UniqueAdGroupStructure adGroupId
   deriving Show
 TextAdStructure
+  accountId Int
   campaignId Int
   adGroupId Int
   adId Int
@@ -21,6 +24,7 @@ TextAdStructure
   UniqueTextAdStructure adId adGroupId
   deriving Show
 KeywordStructure
+  accountId Int
   campaignId Int
   adGroupId Int
   keywordId Int
@@ -29,17 +33,20 @@ KeywordStructure
   UniqueKeywordStructure keywordId adGroupId
   deriving Show
 CampaignAttributes
+  accountId Int
   campaignId Int
   status Text
   observed UTCTime
   deriving Show
 AdGroupAttributes
+  accountId Int
   campaignId Int
   adGroupId Int
   status Text
   observed UTCTime
   deriving Show
 TextAdAttributres
+  accountId Int
   campaignId Int
   adGroupId Int
   adId Int
@@ -47,6 +54,7 @@ TextAdAttributres
   observed UTCTime
   deriving Show
 KeywordAttributes
+  accountId Int
   campaignId Int
   adGroupId Int
   keywordId Int
@@ -57,6 +65,7 @@ KeywordAttributes
   observed UTCTime
   deriving Show
 CampaignPerformance
+  accountId Int
   campaignId Int
   day Day
   network Text
@@ -66,6 +75,7 @@ CampaignPerformance
   avgpos Double
   conversions Int
 AdGroupPerformance
+  accountId Int
   campaignId Int
   adGroupId Int
   day Day
@@ -76,6 +86,7 @@ AdGroupPerformance
   avgpos Double
   conversions Int
 TextAdPerformance
+  accountId Int
   campaignId Int
   adGroupId Int
   adId Int
