@@ -82,6 +82,7 @@ library
                  , containers
                  , vector
                  , time
+                 , report-insert  
 
 executable         web
     if flag(library-only)

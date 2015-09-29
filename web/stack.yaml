@@ -4,5 +4,7 @@ flags:
     dev: false
 packages:
 - '.'
+- '../report-insert'
 extra-deps: []
 resolver: lts-3.4
+  
