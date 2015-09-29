@@ -3,6 +3,7 @@ import StringIO
 import sys
 import io
 import datetime
+import os
 
 from googleads import adwords
 from googleads import oauth2
@@ -293,5 +294,14 @@ def main(client):
   downloadReports(performance_reports,False,client,report_downloader)
 
 if __name__ == '__main__':
-  adwords_client = adwords.AdWordsClient.LoadFromStorage(path='/home/fergie/src/adwords/googleads.yaml')
+  CLIENT_ID = os.environ['ADWORDS_CLIENT_ID']
+  CLIENT_SECRET = os.environ['ADWORDS_CLIENT_SECRET']
+  REFRESH_TOKEN = os.environ['ADWORDS_REFRESH_TOKEN']
+  DEVELOPER_TOKEN = os.environ['ADWORDS_DEVELOPER_TOKEN']
+  USER_AGENT = "eanalytica.com-report-downloader"
+  CLIENT_CUSTOMER_ID = "929-872-4012"
+  oauth2_client = oauth2.GoogleRefreshTokenClient(
+      CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN)
+  adwords_client = adwords.AdWordsClient(
+      DEVELOPER_TOKEN, oauth2_client, USER_AGENT, CLIENT_CUSTOMER_ID)
   main(adwords_client)
