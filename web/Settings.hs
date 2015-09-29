@@ -54,7 +54,7 @@ data AppSettings = AppSettings
     -- ^ Copyright text to appear in the footer of the page
     , appAnalytics              :: Maybe Text
     -- ^ Google Analytics code
-    }
+    } deriving Show
 
 instance FromJSON AppSettings where
     parseJSON = withObject "AppSettings" $ \o -> do
