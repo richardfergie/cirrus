@@ -20,16 +20,16 @@ ip-from-header: "_env:IP_FROM_HEADER:false"
 webdatabase:
   user:     "_env:WEBUSER:web"
   password: "_env:WEBPASS:web"
-  host:     "_env:PGHOST:localhost"
-  port:     "_env:PGPORT:5432"
+  host:     "_env:POSTGRES_PORT_5432_TCP_ADDR:localhost"
+  port:     "_env:POSTGRES_PORT_5432_TCP_PORT:5432"
   database: "_env:WEBDATABASE:web"
   poolsize: "_env:WEBPOOLSIZE:10"
 
 adwordsdatabase:
-  user:     "_env:ADWUSER:web"
-  password: "_env:ADWPASS:web"
-  host:     "_env:PGHOST:localhost"
-  port:     "_env:PGPORT:5432"
+  user:     "_env:ADWUSER:adwords"
+  password: "_env:ADWPASS:adwords"
+  host:     "_env:POSTGRES_PORT_5432_TCP_ADDR:localhost"
+  port:     "_env:POSTGRES_PORT_5432_TCP_PORT:5432"
   database: "_env:ADWDATABASE:web"
   poolsize: "_env:ADWPOOLSIZE:10"
   

@@ -16,3 +16,7 @@ web/config/client_session_key.aes
 *x.DS_Store
 *.swp
 *.keter
+version
+web/deploy/config
+web/deploy/static
+web/deploy/web
