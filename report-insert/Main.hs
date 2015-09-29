@@ -28,6 +28,7 @@ import Control.Monad.Logger
 import Control.Monad.Trans.Resource
 import System.Environment(getArgs,lookupEnv)
 import Data.Time.Format
+import qualified Codec.Compression.GZip as GZip
 import Shared.Types
 
 share [mkPersist sqlSettings, mkMigrate "migrateAdWords"]
@@ -229,7 +230,7 @@ uploadStructureReport :: (PersistEntity val, FromNamedRecord (WithAccount val)) 
         -> ReaderT SqlBackend (NoLoggingT (ResourceT IO)) ()
 uploadStructureReport conf = do
   now <- liftIO $ getCurrentTime
-  raw <- liftIO $ BL.readFile $ generateFilename
+  raw <- liftIO $ fmap GZip.decompress $ BL.readFile $ generateFilename
                                   (csvDirectory conf)
                                   (accountId conf)
                                   (reportName conf)
@@ -248,7 +249,7 @@ uploadOtherReport :: (PersistEntity val, FromNamedRecord (WithAccountTime val)) 
         -> ReaderT SqlBackend (NoLoggingT (ResourceT IO)) ()
 uploadOtherReport conf = do
   now <- liftIO $ getCurrentTime
-  raw <- liftIO $ BL.readFile $ generateFilename
+  raw <- liftIO $ fmap GZip.decompress $ BL.readFile $ generateFilename
                                   (csvDirectory conf)
                                   (accountId conf)
                                   (reportName conf)

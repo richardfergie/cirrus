@@ -20,4 +20,5 @@ version
 web/deploy/config
 web/deploy/static
 web/deploy/web
+report-insert/ri-deploy/report-insert
 secrets.sh

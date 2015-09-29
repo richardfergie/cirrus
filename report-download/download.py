@@ -19,7 +19,7 @@ campaign_structure_report = {
       'reportName': 'CampaignStructure',
       'dateRangeType' : 'YESTERDAY',
       'reportType': 'CAMPAIGN_PERFORMANCE_REPORT',
-      'downloadFormat' : 'CSV',
+      'downloadFormat' : 'GZIPPED_CSV',
       'selector': {
           'fields' : ['CampaignId',
                       'CampaignName',
@@ -33,7 +33,7 @@ adgroup_structure_report = {
       'reportName': 'AdGroupStructure',
       'dateRangeType' : 'YESTERDAY',
       'reportType': 'ADGROUP_PERFORMANCE_REPORT',
-      'downloadFormat' : 'CSV',
+      'downloadFormat' : 'GZIPPED_CSV',
       'selector': {
           'fields' : ['CampaignId',
                       'AdGroupId',
@@ -47,7 +47,7 @@ textad_structure_report = {
       'reportName': 'TextAdStructure',
       'dateRangeType' : 'YESTERDAY',
       'reportType': 'AD_PERFORMANCE_REPORT',
-      'downloadFormat' : 'CSV',
+      'downloadFormat' : 'GZIPPED_CSV',
       'selector': {
           'fields' : ['CampaignId',
                       'AdGroupId',
@@ -73,7 +73,7 @@ keyword_structure_report = {
       'reportName': 'KeywordStructure',
       'dateRangeType': 'YESTERDAY',
       'reportType': 'KEYWORDS_PERFORMANCE_REPORT',
-      'downloadFormat': 'CSV',
+      'downloadFormat': 'GZIPPED_CSV',
       'selector': {
           'fields': ['CampaignId',
                      'AdGroupId',
@@ -103,7 +103,7 @@ campaign_attribute_report = {
       'reportName': 'CampaignAttribute',
       'dateRangeType' : 'YESTERDAY',
       'reportType': 'CAMPAIGN_PERFORMANCE_REPORT',
-      'downloadFormat' : 'CSV',
+      'downloadFormat' : 'GZIPPED_CSV',
       'selector': {
           'fields' : ['CampaignId',
                       'CampaignStatus',
@@ -117,7 +117,7 @@ adgroup_attribute_report = {
       'reportName': 'AdGroupAttribute',
       'dateRangeType' : 'YESTERDAY',
       'reportType': 'ADGROUP_PERFORMANCE_REPORT',
-      'downloadFormat' : 'CSV',
+      'downloadFormat' : 'GZIPPED_CSV',
       'selector': {
           'fields' : ['CampaignId',
                       'AdGroupId',
@@ -133,7 +133,7 @@ textad_attribute_report = {
       'reportName': 'TextAdAttribute',
       'dateRangeType' : 'YESTERDAY',
       'reportType': 'AD_PERFORMANCE_REPORT',
-      'downloadFormat' : 'CSV',
+      'downloadFormat' : 'GZIPPED_CSV',
       'selector': {
           'fields' : ['CampaignId',
                       'AdGroupId',
@@ -156,7 +156,7 @@ keyword_attribute_report = {
       'reportName': 'KeywordAttribute',
       'dateRangeType': 'YESTERDAY',
       'reportType': 'KEYWORDS_PERFORMANCE_REPORT',
-      'downloadFormat': 'CSV',
+      'downloadFormat': 'GZIPPED_CSV',
       'selector': {
           'fields': ['CampaignId',
                      'AdGroupId',
@@ -189,7 +189,7 @@ campaign_performance_report = {
       'reportName': 'CampaignPerformance',
       'dateRangeType' : 'YESTERDAY',
       'reportType': 'CAMPAIGN_PERFORMANCE_REPORT',
-      'downloadFormat' : 'CSV',
+      'downloadFormat' : 'GZIPPED_CSV',
       'selector': {
           'fields' : ['CampaignId',
                       'Date',
@@ -207,7 +207,7 @@ adgroup_performance_report = {
       'reportName': 'AdGroupPerformance',
       'dateRangeType' : 'YESTERDAY',
       'reportType': 'ADGROUP_PERFORMANCE_REPORT',
-      'downloadFormat' : 'CSV',
+      'downloadFormat' : 'GZIPPED_CSV',
       'selector': {
           'fields' : ['CampaignId',
                       'AdGroupId',
@@ -226,7 +226,7 @@ textad_performance_report = {
       'reportName': 'TextAdPerformance',
       'dateRangeType' : 'YESTERDAY',
       'reportType': 'AD_PERFORMANCE_REPORT',
-      'downloadFormat' : 'CSV',
+      'downloadFormat' : 'GZIPPED_CSV',
       'selector': {
           'fields' : ['CampaignId',
                       'AdGroupId',
