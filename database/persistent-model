@@ -1,18 +1,18 @@
 CampaignStructure
-  accountId Int
+  accountId Text
   campaignId Int
   name Text
   UniqueCampaignStructure campaignId
   deriving Show
 AdGroupStructure
-  accountId Int
+  accountId Text
   campaignId Int
   adGroupId Int
   name Text
   UniqueAdGroupStructure adGroupId
   deriving Show
 TextAdStructure
-  accountId Int
+  accountId Text
   campaignId Int
   adGroupId Int
   adId Int
@@ -21,32 +21,33 @@ TextAdStructure
   description2 Text
   displayUrl Text
   destinationUrl Text
-  UniqueTextAdStructure adId adGroupId
+  UniqueTextAdStructure adGroupId adId
   deriving Show
 KeywordStructure
-  accountId Int
+  accountId Text
   campaignId Int
   adGroupId Int
   keywordId Int
   keyword Text
   matchType Text
-  UniqueKeywordStructure keywordId adGroupId
+  UniqueKeywordStructure adGroupId keywordId
   deriving Show
 CampaignAttributes
-  accountId Int
+  accountId Text
   campaignId Int
   status Text
   observed UTCTime
   deriving Show
 AdGroupAttributes
-  accountId Int
+  accountId Text
   campaignId Int
   adGroupId Int
   status Text
+  cpcBid AdWordsMicros
   observed UTCTime
   deriving Show
-TextAdAttributres
-  accountId Int
+TextAdAttributes
+  accountId Text
   campaignId Int
   adGroupId Int
   adId Int
@@ -54,39 +55,41 @@ TextAdAttributres
   observed UTCTime
   deriving Show
 KeywordAttributes
-  accountId Int
+  accountId Text
   campaignId Int
   adGroupId Int
   keywordId Int
-  bid Double Maybe -- nothing if ad group bid?
+  bid AdWordsMicros Maybe -- nothing if ad group bid?
   qualityScore Int
-  firstPageBid Double
-  topOfPageBid Double
+  firstPageBid AdWordsMicros
+  topOfPageBid AdWordsMicros
   observed UTCTime
   deriving Show
 CampaignPerformance
-  accountId Int
+  accountId Text
   campaignId Int
   day Day
   network Text
   clicks Int
   impressions Int
-  cost Double
+  cost AdWordsMicros
   avgpos Double
   conversions Int
+  observed UTCTime
 AdGroupPerformance
-  accountId Int
+  accountId Text
   campaignId Int
   adGroupId Int
   day Day
   network Text
   clicks Int
   impressions Int
-  cost Double
+  cost AdWordsMicros
   avgpos Double
   conversions Int
+  observed UTCTime
 TextAdPerformance
-  accountId Int
+  accountId Text
   campaignId Int
   adGroupId Int
   adId Int
@@ -95,7 +98,8 @@ TextAdPerformance
   network Text
   clicks Int
   impressions Int
-  cost Double
+  cost AdWordsMicros
   avgpos Double
   conversions Int
+  observed UTCTime
   
