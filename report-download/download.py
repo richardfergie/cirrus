@@ -4,6 +4,7 @@ import sys
 import io
 import datetime
 import os
+import getopt
 
 from googleads import adwords
 from googleads import oauth2
@@ -287,11 +288,20 @@ def downloadReports(reports,zeroimp,client,report_downloader):
       stream_data.close()
     print ("Downloaded "+reportname)
 
-def main(client):
+def convertAllTime(reps):
+  for report in reps:
+    report['reportName'] = report['reportName']+'AllTime'
+    report['dateRangeType'] = 'ALL_TIME'
+  return(reps)
+
+def main(client,alltime):
   report_downloader = client.GetReportDownloader(version='v201506')
+  preports = performance_reports
+  if alltime:
+    preports = convertAllTime(performance_reports)
   downloadReports(structure_reports,True,client,report_downloader)
   downloadReports(attribute_reports,True,client,report_downloader)
-  downloadReports(performance_reports,False,client,report_downloader)
+  downloadReports(preports,False,client,report_downloader)
 
 if __name__ == '__main__':
   CLIENT_ID = os.environ['ADWORDS_CLIENT_ID']
@@ -300,8 +310,19 @@ if __name__ == '__main__':
   DEVELOPER_TOKEN = os.environ['ADWORDS_DEVELOPER_TOKEN']
   USER_AGENT = "eanalytica.com-report-downloader"
   CLIENT_CUSTOMER_ID = "929-872-4012"
+  args = sys.argv[1:]
+  try:
+    opts, args = getopt.getopt(args,"a",["all-time"])
+  except getopt.GetoptError:
+      print 'Invalid args'
+      sys.exit(2)
+  alltime = False
+  for opt, arg in opts:
+    if (opt=="-a" or opt=="--all-time"):
+      alltime=True
+
   oauth2_client = oauth2.GoogleRefreshTokenClient(
       CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN)
   adwords_client = adwords.AdWordsClient(
       DEVELOPER_TOKEN, oauth2_client, USER_AGENT, CLIENT_CUSTOMER_ID)
-  main(adwords_client)
+  main(adwords_client, alltime)
