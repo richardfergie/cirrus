@@ -154,7 +154,8 @@ testConf = Conf "/tmp/" "929-872-4012"
 readArgs = do
   args <- getArgs
   case args of
-   [dir,account] -> return (dir, account)
+   [dir,account] -> return (dir, account,False)
+   [dir,account,alltime] -> return (dir,account,True)
    otherwise -> error "Need two arguments"
 
 makeConnectionString = do
@@ -166,7 +167,7 @@ makeConnectionString = do
 
 main :: IO ()
 main = do
-  (dir, account) <- readArgs
+  (dir, account,alltime) <- readArgs
   connstr <- makeConnectionString
   now <- getCurrentTime
   runNoLoggingT $ withPostgresqlConn connstr $ \conn ->
@@ -185,12 +186,21 @@ main = do
          (\x -> insert (x::TextAdAttributes) >> return ())
        uploadOtherReport $ Conf dir account "KeywordAttribute"
          (\x -> insert (x::KeywordAttributes) >> return ())
-       uploadOtherReport $ Conf dir account "CampaignPerformance"
-         (\x -> insert (x::CampaignPerformance) >> return ())
-       uploadOtherReport $ Conf dir account "AdGroupPerformance"
-         (\x -> insert (x::AdGroupPerformance) >> return ())
-       uploadOtherReport $ Conf dir account "TextAdPerformance"
-         (\x -> insert (x::TextAdPerformance) >> return ())
+       if (not alltime)
+          then do
+            uploadOtherReport $ Conf dir account "CampaignPerformance"
+              (\x -> insert (x::CampaignPerformance) >> return ())
+            uploadOtherReport $ Conf dir account "AdGroupPerformance"
+              (\x -> insert (x::AdGroupPerformance) >> return ())
+            uploadOtherReport $ Conf dir account "TextAdPerformance"
+              (\x -> insert (x::TextAdPerformance) >> return ())
+          else do
+            uploadOtherReport $ Conf dir account "CampaignPerformanceAllTime"
+              (\x -> insert (x::CampaignPerformance) >> return ())
+            uploadOtherReport $ Conf dir account "AdGroupPerformanceAllTime"
+              (\x -> insert (x::AdGroupPerformance) >> return ())
+            uploadOtherReport $ Conf dir account "TextAdPerformanceAllTime"
+              (\x -> insert (x::TextAdPerformance) >> return ())
 
 data ReportUploadConfig func = Conf {
   csvDirectory :: String,
