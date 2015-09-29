@@ -20,3 +20,4 @@ version
 web/deploy/config
 web/deploy/static
 web/deploy/web
+secrets.sh

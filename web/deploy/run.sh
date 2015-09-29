@@ -1,4 +1,4 @@
-#!/bin/base -xe
+#!/bin/bash -xe
 
 OLD_CONTAINER=$(sudo docker ps | grep "0.0.0.0:80" | awk {'print $1'} | head -1)
 echo "Running Build"
@@ -8,5 +8,8 @@ if [ ! -z "$OLD_CONTAINER" ]
         sudo docker stop $OLD_CONTAINER
         sudo docker rm $OLD_CONTAINER
     else
-      echo "No old container"
+        echo "No old container"
+fi
+
 docker run -p 80:3000 --link cirrus-postgres:postgres --rm cirrusweb ./web
+
