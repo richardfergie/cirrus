@@ -76,9 +76,6 @@ makeFoundation appSettings = do
 
     -- Perform database migration using our application's logging settings.
     runLoggingT (runSqlPool (runMigration migrateWeb) pool) logFunc
-    -- this shouldn't be able to migrate - will runtime error at startup
-    -- if tables don't match
-    runLoggingT (runSqlPool (runMigration migrateAdWords) adwpool) logFunc
 
     -- Return the foundation
     return $ mkFoundation pool adwpool
