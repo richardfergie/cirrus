@@ -263,7 +263,7 @@ def downloadReports(reports,zeroimp,client,report_downloader):
 
   for report in reports:
     reportname = report['reportName']
-    filename = '/tmp/' + ':'.join([
+    filename = '/opt/reports/' + ':'.join([
                   clientstring,
                   reportname,
                   today.strftime('%Y-%m-%d')
