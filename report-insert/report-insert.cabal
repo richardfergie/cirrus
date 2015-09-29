@@ -77,7 +77,8 @@ executable report-insert
                        vector,
                        monad-logger,
                        resourcet,
-                       report-insert 
+                       report-insert,
+                       time
   
   -- Directories containing source files.
   -- hs-source-dirs:      

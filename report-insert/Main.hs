@@ -27,6 +27,7 @@ import qualified Data.Vector as V
 import Control.Monad.Logger
 import Control.Monad.Trans.Resource
 import System.Environment(getArgs,lookupEnv)
+import Data.Time.Format
 import Shared.Types
 
 share [mkPersist sqlSettings, mkMigrate "migrateAdWords"]
@@ -134,7 +135,7 @@ instance FromNamedRecord (WithAccountTime TextAdPerformance) where
     <$> m .: "Campaign ID"
     <*> m .: "Ad group ID"
     <*> m .: "Ad ID"
-    <*> m .: "Keyword Id"
+    <*> m .: "Keyword ID"
     <*> m .: "Day"
     <*> m .: "Network (with search partners)"
     <*> m .: "Clicks"
@@ -167,9 +168,10 @@ main = do
   (dir, account) <- readArgs
   connstr <- makeConnectionString
   now <- getCurrentTime
-  runStdoutLoggingT $ withPostgresqlConn connstr $ \conn -> 
+  runNoLoggingT $ withPostgresqlConn connstr $ \conn ->
      liftIO $ flip runSqlPersistM conn $ do
        runMigration migrateAdWords
+       transactionSave
        uploadStructureReport $ Conf dir account "CampaignStructure" insertCampaignStructure
        uploadStructureReport $ Conf dir account "AdGroupStructure" insertAdGroupStructure
        uploadStructureReport $ Conf dir account "TextAdStructure" insertTextAdStructure
@@ -196,7 +198,7 @@ data ReportUploadConfig func = Conf {
   uploadFunction :: func
                                }
 generateFilename dir aid report t = concat [dir,aid,":",report,":",datestring]
-  where datestring = (\(y,m,d) -> (show y)++"-"++(show m)++"-"++(show d)) $ toGregorian $ utctDay t
+  where datestring = formatTime defaultTimeLocale "%Y-%m-%d" t
 
 insertStructure
   :: (PersistUnique (PersistEntityBackend val), PersistEntity val) =>
