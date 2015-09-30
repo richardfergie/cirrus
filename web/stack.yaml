@@ -4,7 +4,7 @@ flags:
     dev: false
 packages:
 - '.'
-- '../report-insert'
+- '../shared-modules'
 extra-deps: []
 resolver: lts-3.4
   

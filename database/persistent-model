@@ -36,7 +36,7 @@ CampaignAttributes
   accountId Text
   campaignId Int
   status Text
-  observed UTCTime
+  observed UTCTime default=now()
   deriving Show
 AdGroupAttributes
   accountId Text
@@ -44,7 +44,7 @@ AdGroupAttributes
   adGroupId Int
   status Text
   cpcBid AdWordsMicros
-  observed UTCTime
+  observed UTCTime default=now()
   deriving Show
 TextAdAttributes
   accountId Text
@@ -52,7 +52,7 @@ TextAdAttributes
   adGroupId Int
   adId Int
   status Text
-  observed UTCTime
+  observed UTCTime default=now()
   deriving Show
 KeywordAttributes
   accountId Text
@@ -63,7 +63,7 @@ KeywordAttributes
   qualityScore Int
   firstPageBid AdWordsMicros
   topOfPageBid AdWordsMicros
-  observed UTCTime
+  observed UTCTime default=now()
   deriving Show
 CampaignPerformance
   accountId Text
@@ -75,7 +75,7 @@ CampaignPerformance
   cost AdWordsMicros
   avgpos Double
   conversions Int
-  observed UTCTime
+  observed UTCTime default=now()
 AdGroupPerformance
   accountId Text
   campaignId Int
@@ -87,7 +87,7 @@ AdGroupPerformance
   cost AdWordsMicros
   avgpos Double
   conversions Int
-  observed UTCTime
+  observed UTCTime default=now()
 TextAdPerformance
   accountId Text
   campaignId Int
@@ -101,5 +101,5 @@ TextAdPerformance
   cost AdWordsMicros
   avgpos Double
   conversions Int
-  observed UTCTime
+  observed UTCTime default=now()
   

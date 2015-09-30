@@ -20,5 +20,5 @@ version
 web/deploy/config
 web/deploy/static
 web/deploy/web
-report-insert/ri-deploy/report-insert
+migrate/migrate/dbmigrate
 secrets.sh

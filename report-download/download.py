@@ -58,6 +58,7 @@ textad_structure_report = {
                       'Description2',
                       'DisplayUrl',
                       'CreativeDestinationUrl',
+                      'CreativeFinalUrls',
                       'Impressions'
                      ],
           'predicates' : [

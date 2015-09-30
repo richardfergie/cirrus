@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 -- The name of the package.
-name:                report-insert
+name:                shared-modules
 
 -- The package version.  See the Haskell package versioning policy (PVP) 
 -- for standards guiding when and how versions should be incremented.
@@ -54,36 +54,3 @@ library
                  bytestring
   default-language: Haskell2010
                       
-executable report-insert
-  -- .hs or .lhs file containing the Main module.
-  main-is:             Main.hs
-  
-  -- Modules included in this executable, other than Main.
-  --other-modules: Shared.Types       
-  
-  -- LANGUAGE extensions used by modules in this package.
-  -- other-extensions:    
-  
-  -- Other library packages from which modules are imported.
-  build-depends:       base >=4.8 && <4.9,
-                       persistent >=2.2 && <2.3,
-                       persistent-template,
-                       persistent-postgresql,
-                       text,
-                       time,
-                       mtl, 
-                       cassava >=0.4 && <0.5,
-                       bytestring,
-                       vector,
-                       monad-logger,
-                       resourcet,
-                       report-insert,
-                       time,
-                       zlib
-  
-  -- Directories containing source files.
-  -- hs-source-dirs:      
-  
-  -- Base language which the package is written in.
-  default-language:    Haskell2010
-  

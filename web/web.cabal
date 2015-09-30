@@ -82,7 +82,7 @@ library
                  , containers
                  , vector
                  , time
-                 , report-insert  
+                 , shared-modules  
 
 executable         web
     if flag(library-only)
