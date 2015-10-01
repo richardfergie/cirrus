@@ -1,0 +1,23 @@
+* Cirrus - An AdWords Data Platform
+This repository contains a selection of tools for downloading AdWords
+data and inserting it into an SQL database.
+
+It is very much work in progress. You should email me at 
+richard.fergie@gmail.com if you actually want to use this so that
+we can discuss.
+
+If you want to proceed anyway then here is what you need:
+
+1. A host computer running Docker. I use the [[https://www.digitalocean.com/features/one-click-apps/docker/][Docker image from Digital Ocean]]
+2. A build computer with [[https://github.com/commercialhaskell/stack][stack]] installed (Dockerising the build is a TODO)
+
+** Instructions
+1. Clone this repository onto your local machine
+2. On the server create a file in ~/secrets.sh. This file contains passwords
+and other other secret information the will be needed when the application runs. 
+See secrets-example.sh for details.
+details of the host system.
+3. Run deploy-all.sh which ships stuff to the host and starts some bits up
+4. You need to set a cronjob to run daily-cron.sh daily. This updates the database
+with new data each day.
+
