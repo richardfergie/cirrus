@@ -17,11 +17,13 @@ ssh $PRODUCTION_USER@$PRODUCTION_HOST "tar xvzf /tmp/dbmigrate.tar.gz && cd migr
 cd ..
 tar -zcvf /tmp/report-download.tar.gz report-download/*
 tar -zcvf /tmp/report-insert.tar.gz report-insert/*
+tar -zcvf /tmp/backup.tar.gz backup/*
 
 scp /tmp/report-download.tar.gz $PRODUCTION_USER@$PRODUCTION_HOST:/tmp/
 scp /tmp/report-insert.tar.gz $PRODUCTION_USER@$PRODUCTION_HOST:/tmp/
+scp /tmp/backup.tar.gz $PRODUCTION_USER@$PRODUCTION_HOST:/tmp/
 
-ssh $PRODUCTION_USER@$PRODUCTION_HOST "tar xvzf /tmp/report-download.tar.gz && tar xvzf /tmp/report-insert.tar.gz"
+ssh $PRODUCTION_USER@$PRODUCTION_HOST "tar xvzf /tmp/report-download.tar.gz && tar xvzf /tmp/report-insert.tar.gz && tar xvzf /tmp/backup.tar.gz"
 
 scp daily-cron.sh $PRODUCTION_USER@$PRODUCTION_HOST:~/
 
