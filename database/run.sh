@@ -21,7 +21,8 @@ fi
 
 docker run -d --name cirrus-postgres --volumes-from postgres-data -e POSTGRES_PASSWORD=${POSTGRES_PG_PASSWORD} "postgres:9.4"
 
-sleep 5 # not ideal, but better solutions are complicated
+# not ideal, but better solutions are complicated. 5 seconds may not be enough for a new install
+sleep 5
 
 docker run -i --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres' <<-EOF
 DO
