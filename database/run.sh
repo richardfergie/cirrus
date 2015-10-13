@@ -1,8 +1,6 @@
 #!/bin/bash -xe
 OLD_CONTAINER=$(docker ps -a | grep "cirrus-postgres" | awk {'print $1'} | head -1)
 DATA_CONTAINER=$(docker ps -a | grep "postgres-data" | awk {'print $1'} | head -1)
-#echo "Running Build"
-#docker build --tag cirrusdb .
 
 source ../secrets.sh
 
@@ -96,3 +94,16 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO web;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO web;
 
 EOF
+
+tables=$(docker run -i --link cirrus-postgres:postgres -e PGPASSWORD=${ADWORDS_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U adwords' <<-EOF
+\dt
+EOF
+)
+
+if [ "$tables" == "No relations found." ];
+then
+    echo "No relations found - loading backup"
+    docker run --link cirrus-postgres:postgres -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} -e POSTGRES_BACKUP_S3_BUCKET=${POSTGRES_BACKUP_S3_BUCKET} -e PGPASSWORD=${ADWORDS_PG_PASSWORD} backup /restore-database.sh
+else
+    echo "Data already in place"
+fi
