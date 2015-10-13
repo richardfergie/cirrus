@@ -12,3 +12,11 @@ export PRODUCTION_HOST=example.com
 # User to run as on host.
 # Must be able to run docker
 export PRODUCTION_USER=user
+# Amazon access keys. Must allow up/download from S3
+export AWS_ACCESS_KEY_ID=keykeykey
+export AWS_SECRET_ACCESS_KEY=secretsecretsecret
+
+# S3 buckets where backups are stored
+# These need to be different buckets
+export ADWORDS_REPORT_S3_BUCKET=
+export POSTGRES_BACKUP_S3_BUCKET=
