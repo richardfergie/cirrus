@@ -18,9 +18,9 @@ and other other secret information the will be needed when the application runs.
 See secrets-example.sh for details.
 details of the host system.
 3. Run deploy-all.sh which ships stuff to the host and starts some bits up
-4. You need to set a cronjob to run daily-cron.sh daily. This updates the database
-with new data each day.
-My cronjob looks like this: 
+4. You need to set a cronjob to run daily-cron.sh daily. This updates the database with new data each day.
+    My cronjob looks like this: 
+    
     0 4 * * * ~/daily-cron.sh | sed -e "s/^/$(date +'\%F \%T') /" >> /var/log/update.log 2>&1
 
 ** Still to do
