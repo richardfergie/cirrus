@@ -23,3 +23,25 @@ with new data each day.
 My cronjob looks like this: 
     0 4 * * * ~/daily-cron.sh | sed -e "s/^/$(date +'\%F \%T') /" >> /var/log/update.log 2>&1
 
+** Still to do
+The essence of any AdWords system is in two parts:
+
+1. Something that can get the data out of AdWords and store it in a way that is easily queryable
+2. Something that makes it easy to push changes back to AdWords.
+
+There is also a middle step where the magic happens and data is turned into actions.
+But a generalised way of doing this is *way* out of scope here.
+
+Cirrus is currently only attacking the first part of this problem, although I'm thinking
+about the second and a kind of "platform" (BUZZWORD ALERT) for the mysterious middle step.
+
+Looking only at the first part (getting data out) the following are the major todos:
+
+1. A way of performing idempotent schema updates on the database. e.g. the keyword_attributes
+table should have a destination_url column - how can I add this in a way that won't break 
+anything when I apply it to an existing database and when I start from an empty database?
+NB: Does this need to be idempotent? CI on databases does not seem to be a solved problem as
+they are so stateful.
+2. I need more checks when deploying a new system. E.g. in this situation there will not be a 
+database backup to restore and the current database will be empty - this is not taken into
+account in the current deployment script. 
