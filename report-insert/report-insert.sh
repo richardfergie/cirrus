@@ -1,5 +1,4 @@
 #!/bin/bash -xe
-export PGPASSWORD=${ADWORDS_PG_PASSWORD:-"adwords"}
 ACCOUNTID="929-872-4012"
 TODAY=`date +"%Y-%m-%d"`
 psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U adwords <<- EOF
@@ -39,10 +38,25 @@ psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U adwo
   ALTER TABLE text_ad_attributes ALTER COLUMN account_id DROP DEFAULT;
   \echo TextAdAttributes
 
-  CREATE TEMP TABLE keyword_attributes_temp(campaign_id BIGINT, ad_group_id BIGINT, keyword_id BIGINT, bid BIGINT, quality_score BIGINT, first_page_bid BIGINT, top_of_page_bid BIGINT, day DATE, impressions BIGINT);
-  \copy keyword_attributes_temp(campaign_id,ad_group_id,keyword_id,bid,quality_score,first_page_bid,top_of_page_bid,day,impressions) FROM PROGRAM 'zcat /opt/reports/$ACCOUNTID:KeywordAttribute:$TODAY' CSV HEADER
+  CREATE TEMP TABLE keyword_attributes_temp(campaign_id BIGINT, ad_group_id BIGINT, keyword_id BIGINT, bid BIGINT, quality_score BIGINT, first_page_bid BIGINT, top_of_page_bid BIGINT, destination_url TEXT, finalurls TEXT, day DATE, impressions BIGINT);
+  \copy keyword_attributes_temp(campaign_id,ad_group_id,keyword_id,bid,quality_score,first_page_bid,top_of_page_bid,destination_url,finalurls, day,impressions) FROM PROGRAM 'zcat /opt/reports/$ACCOUNTID:KeywordAttribute:$TODAY' CSV HEADER
   ALTER TABLE keyword_attributes ALTER COLUMN account_id SET DEFAULT '$ACCOUNTID';
-  INSERT INTO keyword_attributes(campaign_id,ad_group_id,keyword_id,bid,quality_score,first_page_bid,top_of_page_bid) (SELECT campaign_id,ad_group_id,keyword_id,bid,quality_score,first_page_bid,top_of_page_bid FROM keyword_attributes_temp);
+  INSERT INTO keyword_attributes(campaign_id,
+                                 ad_group_id,
+                                 keyword_id,
+                                 bid,
+                                 quality_score,
+                                 first_page_bid,
+                                 top_of_page_bid,
+                                 destination_url) (SELECT campaign_id,
+                                                          ad_group_id,
+                                                          keyword_id,
+                                                          bid,
+                                                          quality_score,
+                                                          first_page_bid,
+                                                          top_of_page_bid,
+                                                          COALESCE(destination_url,finalurls)
+                                                          FROM keyword_attributes_temp);
   ALTER TABLE keyword_attributes ALTER COLUMN account_id DROP DEFAULT;
   \echo KeywordAttributes
 

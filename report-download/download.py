@@ -167,6 +167,8 @@ keyword_attribute_report = {
                      'QualityScore',
                      'FirstPageCpc',
                      'TopOfPageCpc',
+                     'CriteriaDestinationUrl',
+                     'FinalUrls',
                      'Date',
                      'Impressions'
                      ],
