@@ -42,7 +42,8 @@ deploy_cron () {
 
 deploy_backup
 deploy_database
-deploy_migrate
+# this way of migrating not helpful right now
+#deploy_migrate
 deploy_download
 deploy_insert
 deploy_cron
