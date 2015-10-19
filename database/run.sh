@@ -106,5 +106,25 @@ then
     echo "No relations found - loading backup"
     docker run --link cirrus-postgres:postgres -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} -e POSTGRES_BACKUP_S3_BUCKET=${POSTGRES_BACKUP_S3_BUCKET} -e PGPASSWORD=${ADWORDS_PG_PASSWORD} backup /restore-database.sh
 else
-    echo "Data already in place"
+    echo "Data already in place. Sweet"
 fi
+
+cd sql
+
+latest=$(docker run -i --link cirrus-postgres:postgres -e PGPASSWORD=${ADWORDS_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U adwords -t --no-align' <<-EOF
+SELECT file FROM database_schema ORDER BY id DESC LIMIT 1
+EOF
+)
+
+echo "Latest file is $latest"
+
+for f in *.sql
+do
+    if [[ "$f" > "$latest" ]];
+    then
+        echo "Running $f"
+        cat $f | docker run -i --link cirrus-postgres:postgres -e PGPASSWORD=${ADWORDS_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U adwords'
+    else
+        echo "Skipping $f"
+    fi
+done
