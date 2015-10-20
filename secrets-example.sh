@@ -5,7 +5,12 @@ export ADWORDS_CLIENT_SECRET=Oauth client secret
 export ADWORDS_REFRESH_TOKEN=Refresh token
 # API developer token. You have to apply to AdWords to get one of these
 export ADWORDS_DEVELOPER_TOKEN=Dev token
-# Password for the postgres database user
+# Password for the postgres database superuser
+# This password is set at database creation after which
+# changing it here will not update the password in the database
+export POSTGRES_PG_PASSWORD="postgres"
+# We use a database user called 'adwords' for most database
+# operations. This is their password
 export ADWORDS_PG_PASSWORD="adwords"
 # Where the host machine is
 export PRODUCTION_HOST=example.com
