@@ -1,6 +1,0 @@
-flags: {}
-packages:
-- '.'
-- ../shared-modules
-extra-deps: []
-resolver: lts-3.4

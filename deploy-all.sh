@@ -15,15 +15,6 @@ deploy_database () {
     ssh $PRODUCTION_USER@$PRODUCTION_HOST "tar xvzf /tmp/database.tar.gz && cd database && ./run.sh"
 }
 
-deploy_migrate () {
-    cd migrate
-    ./build.sh
-    tar -zcvf /tmp/dbmigrate.tar.gz migrate/*
-    scp /tmp/dbmigrate.tar.gz $PRODUCTION_USER@$PRODUCTION_HOST:/tmp/
-    ssh $PRODUCTION_USER@$PRODUCTION_HOST "tar xvzf /tmp/dbmigrate.tar.gz && cd migrate && ./run.sh"
-    cd ..
-}
-
 deploy_download () {
     tar -zcvf /tmp/report-download.tar.gz report-download/*
     scp /tmp/report-download.tar.gz $PRODUCTION_USER@$PRODUCTION_HOST:/tmp/
@@ -42,8 +33,6 @@ deploy_cron () {
 
 deploy_backup
 deploy_database
-# this way of migrating not helpful right now
-#deploy_migrate
 deploy_download
 deploy_insert
 deploy_cron
