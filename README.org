@@ -31,5 +31,37 @@ The essence of any AdWords system is in three parts:
 
 A generalised way of doing part 2 is *way* out of scope here.
 
-Cirrus is currently only a solution for part 1. An idea for part 3 is in the works right now.
+Cirrus is currently only a solution for part 1. And an incomplete one at that - there is
+quite a bit of data in AdWords that isn't downloaded (yet).
 
+*** Pushing to AdWords
+Plan A is to implement a job queue which the middle layer (magic business logic) can
+push to. Then workers will push the changes to the API.
+
+This raises the question of why the magic middle layer can't just push to AdWords itself?
+
+I don't have a great answer for this - it is certainly possible to push directly to the API.
+
+Using a job queue has the following advantages:
+
+1. The AdWords API is quite complicated (SOAP etc.) and there aren't client libraries 
+   for a lot of things. By opting only to use a restricted set of common API operations
+   we can present a simpler interface in a language agnostic way by using a job queue
+   as an intermediary
+2. All changes can be logged "for free". i.e. the workers log the changes so the
+   magic business logic doesn't have to worry about this.
+3. Batch jobs can be executed in the correct order (e.g. to create a new keyword in
+   a new campaign you must first create the campaign and then the ad group)
+
+The key weasel words here are "restricted set of common API operations". These need to
+be defined.
+
+| Keywords        | Ads    | Ad Groups  | Campaigns     | Shopping      |
+|-----------------+--------+------------+---------------+---------------|
+| Create          | Create | Create     | Create        | Maybe one day |
+| Pause           | Pause  | Pause      | Pause         |               |
+| Change bid      |        | Change bid | Change budget |               |
+| Change dest url |        | Rename     | Rename        |               |
+
+The dependencies between these operations makes figuring out
+an API for the API tricky.
