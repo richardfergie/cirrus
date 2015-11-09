@@ -62,5 +62,37 @@ be defined.
 | Change bid      |        | Change bid | Change budget |               |
 | Change dest url |        | Rename     | Rename        |               |
 
-The dependencies between these operations makes figuring out
-an API for the API tricky.
+The dependencies between these operations imples the following structure for an
+update (expressed here in JSON):
+
+#+BEGIN_SRC
+{ accountId: "XXX-XXX-XXXX",
+  campaignChanges: [
+     {campaignId: XXXXXXXXXXXX,
+      newBudget: XXXXXXX,
+      newName: "foo"
+     },
+     {campaignName: "bar",
+      budget: XXXXXX
+     }
+     ],
+  adgroupChanges: [
+     {campaignId: XXXXXXXXXX,
+      adGroupId: XXXXXXXXXX,
+      newBid: XXXX,
+      newName: "foo - bar"
+     },
+     {campaignName: "bar",
+      name: "bar - quux",
+      bid: XXXXXXXX
+     },
+     {campaignId: XXXXXXXXX,
+      name: "bar - baz",
+      bid: XXXXXX
+     }
+   ]
+   // and so on
+   }
+#+END_SRC
+
+Existing entities are referred to by id. New entities are referred to by name.
