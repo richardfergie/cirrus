@@ -1,0 +1,12 @@
+/static StaticR Static appStatic
+/auth   AuthR   Auth   getAuth
+
+/favicon.ico FaviconR GET
+/robots.txt RobotsR GET
+
+/ HomeR GET POST
+/proxy/#Int/*Texts ProxyR GET POST PUT DELETE PATCH
+
+/create CreateThingyR GET
+
+/comments CommentR POST
