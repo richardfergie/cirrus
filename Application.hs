@@ -30,7 +30,10 @@ import Network.Wai.Middleware.RequestLogger (Destination (Logger),
 import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
                                              toLogStr)
 import qualified Data.Map.Strict as Map
-
+import Control.Concurrent (forkIO, threadDelay)
+import System.Process (terminateProcess)
+import Data.UUID
+import Data.Time
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
 import Handler.Common
@@ -41,6 +44,16 @@ import Handler.Comment
 -- of the call to mkYesodData which occurs in Foundation.hs. Please see the
 -- comments there for more details.
 mkYesodDispatch "App" resourcesApp
+
+clearUpContainers :: TVar (Map.Map UUID ContainerDetails) -> IO ()
+clearUpContainers t = do
+  containermap <- atomically $ readTVar t
+  now <- getCurrentTime
+  -- look for stuff older than 1 hour 5 minutes
+  let timethreshold = addUTCTime (-60*65) now
+  let (todelete,tokeep) = Map.partition (\c -> lastAction c < timethreshold) containermap
+  mapM_ (\(_,x) -> terminateProcess $ process x) $ Map.toList todelete
+  atomically $ writeTVar t tokeep
 
 -- | This function allocates resources (such as a database connection pool),
 -- performs initialization and returns a foundation datatype value. This is also
@@ -57,6 +70,10 @@ makeFoundation appSettings = do
         (appStaticDir appSettings)
 
     appContainerMap <- newTVarIO Map.empty
+
+    _ <- forkIO $ forever $ do
+      clearUpContainers appContainerMap
+      threadDelay (1000000*60*5) --run every five minutes
 
     -- We need a log function to create a connection pool. We need a connection
     -- pool to create our foundation. And we need our foundation to get a
