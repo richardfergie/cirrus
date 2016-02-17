@@ -88,6 +88,8 @@ library
                  , conduit-extra
                  , process
                  , streaming-commons
+                 , mime-mail
+                 , blaze-html
 
 executable         jupyter-proxy
     if flag(library-only)

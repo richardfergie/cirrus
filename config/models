@@ -1,13 +1,12 @@
 User
-    ident Text
-    password Text Maybe
-    UniqueUser ident
-    deriving Typeable
-Email
-    email Text
-    userId UserId Maybe
-    verkey Text Maybe
-    UniqueEmail email
+   email Text
+   password Text Maybe -- Password may not be set yet
+   verkey Text Maybe -- Used for resetting passwords
+   verified Bool
+   UniqueUser email
+   deriving Typeable
+   deriving Eq
+   deriving Show
 Comment json -- Adding "json" causes ToJSON and FromJSON instances to be derived.
     message Text
     userId UserId Maybe
