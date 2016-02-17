@@ -90,6 +90,7 @@ library
                  , streaming-commons
                  , mime-mail
                  , blaze-html
+                 , uuid
 
 executable         jupyter-proxy
     if flag(library-only)

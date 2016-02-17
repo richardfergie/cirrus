@@ -14,8 +14,9 @@ import Network.Mail.Mime
 import qualified Data.Text.Lazy.Encoding
 import Text.Shakespeare.Text (stext)
 import Text.Blaze.Html.Renderer.Utf8 (renderHtml)
-
-
+import qualified Data.Map.Strict as Map
+import Data.UUID
+import System.Process
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
 -- starts running, such as database connections. Every handler will have
@@ -26,7 +27,14 @@ data App = App
     , appConnPool    :: ConnectionPool -- ^ Database connection pool.
     , appHttpManager :: Manager
     , appLogger      :: Logger
+    , appContainerMap :: TVar (Map.Map UUID ContainerDetails)
     }
+
+data ContainerDetails = ContainerDetails { process :: ProcessHandle,
+                                           lastAction :: UTCTime,
+                                           containerUser :: UserId,
+                                           containerPort :: Int
+                                         }
 
 -- This is where we define all of the routes in our application. For a full
 -- explanation of the syntax, please see:
@@ -256,6 +264,11 @@ instance HasHttpManager App where
 unsafeHandler :: App -> Handler a -> IO a
 unsafeHandler = Unsafe.fakeHandlerGetLogger appLogger
 
+instance PathPiece UUID where
+  fromPathPiece = fromText
+  toPathPiece = toText
+
+
 -- Note: Some functionality previously present in the scaffolding has been
 -- moved to documentation in the Wiki. Following are some hopefully helpful
 -- links:
@@ -263,3 +276,4 @@ unsafeHandler = Unsafe.fakeHandlerGetLogger appLogger
 -- https://github.com/yesodweb/yesod/wiki/Sending-email
 -- https://github.com/yesodweb/yesod/wiki/Serve-static-files-from-a-separate-domain
 -- https://github.com/yesodweb/yesod/wiki/i18n-messages-in-the-scaffolding
+

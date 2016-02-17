@@ -9,6 +9,9 @@ import Network.HTTP.ReverseProxy
 import System.Process
 import Data.Streaming.Network (getUnassignedPort)
 import Control.Concurrent
+import Data.UUID.V4
+import Data.UUID
+import qualified Data.Map.Strict as Map
 -- This is a handler function for the GET request method on the HomeR
 -- resource pattern. All of your resource patterns are defined in
 -- config/routes
@@ -41,28 +44,38 @@ postHomeR = do
         setTitle "Welcome To Yesod!"
         $(widgetFile "homepage")
 
-gp :: RequestHeaders -> IO (Either a ProxyDest)
-gp = error "Running gp"
-
-makeProxy :: ProxyDest -> Handler ()
-makeProxy destination = liftIO $ rawProxyTo gp $ error "Skipping gp"
-
 bar :: Manager -> Int -> Application
 bar m p = waiProxyTo (const $ return $ WPRProxyDest $ ProxyDest "localhost" p) defaultOnExc m
 
-foo port = do
-  m <- fmap appHttpManager getYesod
-  let app :: Application = bar m port
-  sendWaiApplication app
+foo uuid = do
+  uid <- requireAuthId
+  httpm <- fmap appHttpManager getYesod
+  maptvar <- fmap appContainerMap getYesod
+  now <- liftIO $ getCurrentTime
+  containers <- liftIO $ atomically $ readTVar maptvar
+  case Map.lookup uuid containers of
+   Nothing -> error "Cannot find uuid in map"
+   Just c -> case (containerUser c == uid) of
+     False -> error "User cannot access this container"
+     True -> do
+       let c' = c{ lastAction = now}
+           app :: Application = bar httpm $ containerPort c
+       liftIO $ atomically $ modifyTVar' maptvar (\m -> Map.adjust (\_ -> c') uuid m)
+       sendWaiApplication app
 
 getCreateThingyR :: Handler ()
 getCreateThingyR = do
-  port <- liftIO $ getUnassignedPort
-  _ <- liftIO $ spawnCommand $ "docker run -p "++ (show port)++":8888 jupyter/datascience-notebook start-notebook.sh --NotebookApp.base_url=/proxy/"++(show port)
+  uid <- requireAuthId
+  cport <- liftIO $ getUnassignedPort
+  uuid <- liftIO $ nextRandom
+  phandle <- liftIO $ spawnCommand $ "docker run -p "++ (show cport)++":8888 jupyter/datascience-notebook start-notebook.sh --NotebookApp.base_url=/proxy/"++(toString uuid)
+  now <- liftIO $ getCurrentTime
+  maptvar <- fmap appContainerMap getYesod
+  liftIO $ atomically $ modifyTVar' maptvar (\m -> Map.insert uuid (ContainerDetails phandle now uid cport) m)
   _ <- liftIO $ threadDelay 3000000
-  redirect $ ProxyR port []
+  redirect $ ProxyR uuid []
 
-getProxyR, postProxyR, putProxyR, deleteProxyR, patchProxyR :: Int -> Texts -> Handler ()
+getProxyR, postProxyR, putProxyR, deleteProxyR, patchProxyR :: UUID -> Texts -> Handler ()
 getProxyR p _ = foo p
 
 postProxyR p _ = foo p
