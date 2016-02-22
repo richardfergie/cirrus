@@ -12,6 +12,7 @@ import Control.Concurrent
 import Data.UUID.V4
 import Data.UUID
 import qualified Data.Map.Strict as Map
+import Prelude(init) -- unsafe!
 -- This is a handler function for the GET request method on the HomeR
 -- resource pattern. All of your resource patterns are defined in
 -- config/routes
@@ -68,10 +69,12 @@ getCreateThingyR = do
   uid <- requireAuthId
   cport <- liftIO $ getUnassignedPort
   uuid <- liftIO $ nextRandom
-  phandle <- liftIO $ spawnCommand $ "docker run -p "++ (show cport)++":8888 jupyter/datascience-notebook start-notebook.sh --NotebookApp.base_url=/proxy/"++(toString uuid)
+  let cp = shell $ "docker run -d -p "++ (show cport)++":8888 jupyter/datascience-notebook start-notebook.sh --NotebookApp.base_url=/proxy/"++(toString uuid)
+  -- need init to strip trailing newline
+  dockerid <- fmap init $ liftIO $ readCreateProcess cp ""
   now <- liftIO $ getCurrentTime
   maptvar <- fmap appContainerMap getYesod
-  liftIO $ atomically $ modifyTVar' maptvar (\m -> Map.insert uuid (ContainerDetails phandle now uid cport) m)
+  liftIO $ atomically $ modifyTVar' maptvar (\m -> Map.insert uuid (ContainerDetails dockerid now uid cport) m)
   _ <- liftIO $ threadDelay 3000000
   redirect $ ProxyR uuid []
 

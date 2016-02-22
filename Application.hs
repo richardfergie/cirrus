@@ -31,7 +31,7 @@ import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
                                              toLogStr)
 import qualified Data.Map.Strict as Map
 import Control.Concurrent (forkIO, threadDelay)
-import System.Process (terminateProcess)
+import System.Process
 import Data.UUID
 import Data.Time
 -- Import all relevant handler modules here.
@@ -52,8 +52,19 @@ clearUpContainers t = do
   -- look for stuff older than 1 hour 5 minutes
   let timethreshold = addUTCTime (-60*65) now
   let (todelete,tokeep) = Map.partition (\c -> lastAction c < timethreshold) containermap
-  mapM_ (\(_,x) -> terminateProcess $ process x) $ Map.toList todelete
+  mapM_ (\(_,x) -> killContainer x) $ Map.toList todelete
   atomically $ writeTVar t tokeep
+
+killContainer :: ContainerDetails -> IO ()
+killContainer (ContainerDetails dockerid _ _ _) = do
+  let cp = shell $ "docker stop "++dockerid
+  did <- readCreateProcess cp ""
+  if did == dockerid
+     then return ()
+     else do
+       let cp' = shell $ "docker kill "++dockerid
+       _ <- readCreateProcess cp' ""
+       return ()
 
 -- | This function allocates resources (such as a database connection pool),
 -- performs initialization and returns a foundation datatype value. This is also

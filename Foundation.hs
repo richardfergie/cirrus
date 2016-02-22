@@ -16,7 +16,6 @@ import Text.Shakespeare.Text (stext)
 import Text.Blaze.Html.Renderer.Utf8 (renderHtml)
 import qualified Data.Map.Strict as Map
 import Data.UUID
-import System.Process
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
 -- starts running, such as database connections. Every handler will have
@@ -30,7 +29,7 @@ data App = App
     , appContainerMap :: TVar (Map.Map UUID ContainerDetails)
     }
 
-data ContainerDetails = ContainerDetails { process :: ProcessHandle,
+data ContainerDetails = ContainerDetails { dockerId :: String,
                                            lastAction :: UTCTime,
                                            containerUser :: UserId,
                                            containerPort :: Int
