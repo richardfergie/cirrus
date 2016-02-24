@@ -34,6 +34,8 @@ import Control.Concurrent (forkIO, threadDelay)
 import System.Process
 import Data.UUID
 import Data.Time
+import Prelude(init)
+import Control.Monad.Logger (runStdoutLoggingT)
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
 import Handler.Common
@@ -57,8 +59,9 @@ clearUpContainers t = do
 
 killContainer :: ContainerDetails -> IO ()
 killContainer (ContainerDetails dockerid _ _ _) = do
+  runStdoutLoggingT $ $(logInfo) $ "Stopping container " <> pack dockerid
   let cp = shell $ "docker stop "++dockerid
-  did <- readCreateProcess cp ""
+  did <- fmap init $ readCreateProcess cp ""
   if did == dockerid
      then return ()
      else do

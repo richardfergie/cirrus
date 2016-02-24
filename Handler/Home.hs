@@ -74,8 +74,9 @@ getCreateThingyR = do
   dockerid <- fmap init $ liftIO $ readCreateProcess cp ""
   now <- liftIO $ getCurrentTime
   maptvar <- fmap appContainerMap getYesod
-  liftIO $ atomically $ modifyTVar' maptvar (\m -> Map.insert uuid (ContainerDetails dockerid now uid cport) m)
+  liftIO $! atomically $ modifyTVar' maptvar (\m -> Map.insert uuid (ContainerDetails dockerid now uid cport) m)
   _ <- liftIO $ threadDelay 3000000
+  $(logInfo) $ "Container " <> (pack dockerid) <> " created"
   redirect $ ProxyR uuid []
 
 getProxyR, postProxyR, putProxyR, deleteProxyR, patchProxyR :: UUID -> Texts -> Handler ()
