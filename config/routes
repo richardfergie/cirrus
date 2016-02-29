@@ -4,9 +4,7 @@
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
 
-/ HomeR GET POST
+/ HomeR GET
 /proxy/#UUID/*Texts ProxyR GET POST PUT DELETE PATCH
 
-/create CreateThingyR GET
-
-/comments CommentR POST
+/create CreateContainerR GET -- should this be a GET?
