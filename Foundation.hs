@@ -102,6 +102,35 @@ instance Yesod App where
     isAuthorized (AuthR _) _ = return Authorized
     isAuthorized FaviconR _ = return Authorized
     isAuthorized RobotsR _ = return Authorized
+    isAuthorized UserR _ = do
+      mu <- maybeAuthId
+      case mu of
+       Nothing -> return AuthenticationRequired
+       Just _ -> return Authorized
+    isAuthorized (ProxyR uuid _) _ = do
+      uid <- requireAuthId
+      maptvar <- fmap appContainerMap getYesod
+      containers <- liftIO $ atomically $ readTVar maptvar
+      case Map.lookup uuid containers of
+        Nothing -> return $ Unauthorized "Unknown container"
+        Just (ContainerDetails _ _ cuid _) ->
+          if cuid == uid
+             then return Authorized
+             else return $ Unauthorized "Unknown container"
+    isAuthorized CreateOrganisationR _ = do
+      mu <- maybeAuthId
+      case mu of
+       Nothing -> return AuthenticationRequired
+       Just _ -> return Authorized
+    isAuthorized (OrganisationR oid) _ = do
+      mu <- maybeAuthId
+      case mu of
+       Nothing -> return AuthenticationRequired
+       Just aid -> do
+         x <- runDB $ getBy $ UniqueOrganisationUser oid aid
+         case x of
+          Nothing -> return $ Unauthorized "You are not part of this org"
+          Just _ -> return Authorized
     -- Default to Authorized for now.
     isAuthorized _ _ = return Authorized
 
@@ -146,20 +175,11 @@ instance YesodAuth App where
     type AuthId App = UserId
 
     -- Where to send a user after successful login
-    loginDest _ = HomeR
+    loginDest _ = UserR
     -- Where to send a user after logout
     logoutDest _ = HomeR
     -- Override the above two destinations when a Referer: header is present
     redirectToReferer _ = True
-
-    {-authenticate creds = runDB $ do
-        x <- getBy $ UniqueUser $ credsIdent creds
-        case x of
-            Just (Entity uid _) -> return $ Authenticated uid
-            Nothing -> Authenticated <$> insert User
-                { userEmail = credsIdent creds
-                , userPassword = Nothing
-                } -}
 
     -- You can add other plugins like BrowserID, email or OAuth here
     authPlugins _ = [authEmail]

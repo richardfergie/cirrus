@@ -10,12 +10,14 @@ import Data.UUID
 import qualified Data.Map.Strict as Map
 import Prelude(init) -- unsafe!
 
-getCreateContainerR :: Handler ()
-getCreateContainerR = do
+-- use the OrgId to link the right data volume
+-- and provide right env vars for db connectivity
+getCreateContainerR :: OrganisationId -> Handler ()
+getCreateContainerR _ = do
   uid <- requireAuthId
   cport <- liftIO $ getUnassignedPort
   uuid <- liftIO $ nextRandom
-  let cp = shell $ "docker run -d -p "++ (show cport)++":8888 jupyter/datascience-notebook start-notebook.sh --NotebookApp.base_url=/proxy/"++(toString uuid)
+  let cp = shell $ "docker run -d -p "++ (show cport)++":8888 jupyter/datascience-notebook start-notebook.sh --NotebookApp.base_url=/notebook/"++(toString uuid)
   -- need init to strip trailing newline
   dockerid <- fmap init $ liftIO $ readCreateProcess cp ""
   now <- liftIO $ getCurrentTime

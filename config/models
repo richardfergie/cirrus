@@ -7,10 +7,16 @@ User
    deriving Typeable
    deriving Eq
    deriving Show
-Comment json -- Adding "json" causes ToJSON and FromJSON instances to be derived.
-    message Text
-    userId UserId Maybe
-    deriving Eq
-    deriving Show
+Organisation
+   name Text
+   admin UserId
+   deriving Eq
+   deriving Show
+OrganisationUser
+   organisation OrganisationId
+   user UserId
+   UniqueOrganisationUser organisation user
+   deriving Show
+   deriving Eq
 
  -- By default this file is used in Model.hs (which is imported by Foundation.hs)

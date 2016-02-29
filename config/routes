@@ -5,6 +5,10 @@
 /robots.txt RobotsR GET
 
 / HomeR GET
-/proxy/#UUID/*Texts ProxyR GET POST PUT DELETE PATCH
+/user UserR GET
+/organisation/create CreateOrganisationR GET POST
+/organisation/overview/#OrganisationId OrganisationR GET
 
-/create CreateContainerR GET -- should this be a GET?
+/notebook/#UUID/*Texts ProxyR GET POST PUT DELETE PATCH
+
+/create/#OrganisationId CreateContainerR GET -- should this be a GET?
