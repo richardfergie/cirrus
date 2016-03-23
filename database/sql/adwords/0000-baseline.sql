@@ -44,10 +44,8 @@ CREATE TABLE ad_group_attributes (
 );
 
 
-ALTER TABLE ad_group_attributes OWNER TO adwords;
-
 --
--- Name: ad_group_attributes_id_seq; Type: SEQUENCE; Schema: public; Owner: adwords
+-- Name: ad_group_attributes_id_seq; Type: SEQUENCE; Schema: public;
 --
 
 CREATE SEQUENCE ad_group_attributes_id_seq
@@ -56,9 +54,6 @@ CREATE SEQUENCE ad_group_attributes_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-
-
-ALTER TABLE ad_group_attributes_id_seq OWNER TO adwords;
 
 --
 -- Name: ad_group_attributes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: adwords
@@ -87,8 +82,6 @@ CREATE TABLE ad_group_performance (
 );
 
 
-ALTER TABLE ad_group_performance OWNER TO adwords;
-
 --
 -- Name: ad_group_performance_id_seq; Type: SEQUENCE; Schema: public; Owner: adwords
 --
@@ -100,8 +93,6 @@ CREATE SEQUENCE ad_group_performance_id_seq
     NO MAXVALUE
     CACHE 1;
 
-
-ALTER TABLE ad_group_performance_id_seq OWNER TO adwords;
 
 --
 -- Name: ad_group_performance_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: adwords
@@ -123,8 +114,6 @@ CREATE TABLE ad_group_structure (
 );
 
 
-ALTER TABLE ad_group_structure OWNER TO adwords;
-
 --
 -- Name: ad_group_structure_id_seq; Type: SEQUENCE; Schema: public; Owner: adwords
 --
@@ -136,8 +125,6 @@ CREATE SEQUENCE ad_group_structure_id_seq
     NO MAXVALUE
     CACHE 1;
 
-
-ALTER TABLE ad_group_structure_id_seq OWNER TO adwords;
 
 --
 -- Name: ad_group_structure_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: adwords
@@ -159,8 +146,6 @@ CREATE TABLE campaign_attributes (
 );
 
 
-ALTER TABLE campaign_attributes OWNER TO adwords;
-
 --
 -- Name: campaign_attributes_id_seq; Type: SEQUENCE; Schema: public; Owner: adwords
 --
@@ -172,8 +157,6 @@ CREATE SEQUENCE campaign_attributes_id_seq
     NO MAXVALUE
     CACHE 1;
 
-
-ALTER TABLE campaign_attributes_id_seq OWNER TO adwords;
 
 --
 -- Name: campaign_attributes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: adwords
@@ -201,8 +184,6 @@ CREATE TABLE campaign_performance (
 );
 
 
-ALTER TABLE campaign_performance OWNER TO adwords;
-
 --
 -- Name: campaign_performance_id_seq; Type: SEQUENCE; Schema: public; Owner: adwords
 --
@@ -214,8 +195,6 @@ CREATE SEQUENCE campaign_performance_id_seq
     NO MAXVALUE
     CACHE 1;
 
-
-ALTER TABLE campaign_performance_id_seq OWNER TO adwords;
 
 --
 -- Name: campaign_performance_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: adwords
@@ -236,8 +215,6 @@ CREATE TABLE campaign_structure (
 );
 
 
-ALTER TABLE campaign_structure OWNER TO adwords;
-
 --
 -- Name: campaign_structure_id_seq; Type: SEQUENCE; Schema: public; Owner: adwords
 --
@@ -249,8 +226,6 @@ CREATE SEQUENCE campaign_structure_id_seq
     NO MAXVALUE
     CACHE 1;
 
-
-ALTER TABLE campaign_structure_id_seq OWNER TO adwords;
 
 --
 -- Name: campaign_structure_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: adwords
@@ -277,8 +252,6 @@ CREATE TABLE keyword_attributes (
 );
 
 
-ALTER TABLE keyword_attributes OWNER TO adwords;
-
 --
 -- Name: keyword_attributes_id_seq; Type: SEQUENCE; Schema: public; Owner: adwords
 --
@@ -290,8 +263,6 @@ CREATE SEQUENCE keyword_attributes_id_seq
     NO MAXVALUE
     CACHE 1;
 
-
-ALTER TABLE keyword_attributes_id_seq OWNER TO adwords;
 
 --
 -- Name: keyword_attributes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: adwords
@@ -315,8 +286,6 @@ CREATE TABLE keyword_structure (
 );
 
 
-ALTER TABLE keyword_structure OWNER TO adwords;
-
 --
 -- Name: keyword_structure_id_seq; Type: SEQUENCE; Schema: public; Owner: adwords
 --
@@ -328,8 +297,6 @@ CREATE SEQUENCE keyword_structure_id_seq
     NO MAXVALUE
     CACHE 1;
 
-
-ALTER TABLE keyword_structure_id_seq OWNER TO adwords;
 
 --
 -- Name: keyword_structure_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: adwords
@@ -352,8 +319,6 @@ CREATE TABLE text_ad_attributes (
     observed timestamp with time zone DEFAULT now() NOT NULL
 );
 
-
-ALTER TABLE text_ad_attributes OWNER TO adwords;
 
 --
 -- Name: text_ad_attributes_id_seq; Type: SEQUENCE; Schema: public; Owner: adwords
@@ -398,8 +363,6 @@ CREATE TABLE text_ad_performance (
 );
 
 
-ALTER TABLE text_ad_performance OWNER TO adwords;
-
 --
 -- Name: text_ad_performance_id_seq; Type: SEQUENCE; Schema: public; Owner: adwords
 --
@@ -411,8 +374,6 @@ CREATE SEQUENCE text_ad_performance_id_seq
     NO MAXVALUE
     CACHE 1;
 
-
-ALTER TABLE text_ad_performance_id_seq OWNER TO adwords;
 
 --
 -- Name: text_ad_performance_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: adwords
@@ -439,8 +400,6 @@ CREATE TABLE text_ad_structure (
 );
 
 
-ALTER TABLE text_ad_structure OWNER TO adwords;
-
 --
 -- Name: text_ad_structure_id_seq; Type: SEQUENCE; Schema: public; Owner: adwords
 --
@@ -452,8 +411,6 @@ CREATE SEQUENCE text_ad_structure_id_seq
     NO MAXVALUE
     CACHE 1;
 
-
-ALTER TABLE text_ad_structure_id_seq OWNER TO adwords;
 
 --
 -- Name: text_ad_structure_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: adwords
@@ -659,133 +616,8 @@ ALTER TABLE ONLY text_ad_structure
     ADD CONSTRAINT unique_text_ad_structure UNIQUE (ad_group_id, ad_id);
 
 
---
--- Name: public; Type: ACL; Schema: -; Owner: postgres
---
-
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM postgres;
-GRANT ALL ON SCHEMA public TO postgres;
-GRANT ALL ON SCHEMA public TO PUBLIC;
-
-
---
--- Name: ad_group_attributes; Type: ACL; Schema: public; Owner: adwords
---
-
-REVOKE ALL ON TABLE ad_group_attributes FROM PUBLIC;
-REVOKE ALL ON TABLE ad_group_attributes FROM adwords;
-GRANT ALL ON TABLE ad_group_attributes TO adwords;
-GRANT SELECT ON TABLE ad_group_attributes TO web;
-
-
---
--- Name: ad_group_performance; Type: ACL; Schema: public; Owner: adwords
---
-
-REVOKE ALL ON TABLE ad_group_performance FROM PUBLIC;
-REVOKE ALL ON TABLE ad_group_performance FROM adwords;
-GRANT ALL ON TABLE ad_group_performance TO adwords;
-GRANT SELECT ON TABLE ad_group_performance TO web;
-
-
---
--- Name: ad_group_structure; Type: ACL; Schema: public; Owner: adwords
---
-
-REVOKE ALL ON TABLE ad_group_structure FROM PUBLIC;
-REVOKE ALL ON TABLE ad_group_structure FROM adwords;
-GRANT ALL ON TABLE ad_group_structure TO adwords;
-GRANT SELECT ON TABLE ad_group_structure TO web;
-
-
---
--- Name: campaign_attributes; Type: ACL; Schema: public; Owner: adwords
---
-
-REVOKE ALL ON TABLE campaign_attributes FROM PUBLIC;
-REVOKE ALL ON TABLE campaign_attributes FROM adwords;
-GRANT ALL ON TABLE campaign_attributes TO adwords;
-GRANT SELECT ON TABLE campaign_attributes TO web;
-
-
---
--- Name: campaign_performance; Type: ACL; Schema: public; Owner: adwords
---
-
-REVOKE ALL ON TABLE campaign_performance FROM PUBLIC;
-REVOKE ALL ON TABLE campaign_performance FROM adwords;
-GRANT ALL ON TABLE campaign_performance TO adwords;
-GRANT SELECT ON TABLE campaign_performance TO web;
-
-
---
--- Name: campaign_structure; Type: ACL; Schema: public; Owner: adwords
---
-
-REVOKE ALL ON TABLE campaign_structure FROM PUBLIC;
-REVOKE ALL ON TABLE campaign_structure FROM adwords;
-GRANT ALL ON TABLE campaign_structure TO adwords;
-GRANT SELECT ON TABLE campaign_structure TO web;
-
-
---
--- Name: keyword_attributes; Type: ACL; Schema: public; Owner: adwords
---
-
-REVOKE ALL ON TABLE keyword_attributes FROM PUBLIC;
-REVOKE ALL ON TABLE keyword_attributes FROM adwords;
-GRANT ALL ON TABLE keyword_attributes TO adwords;
-GRANT SELECT ON TABLE keyword_attributes TO web;
-
-
---
--- Name: keyword_structure; Type: ACL; Schema: public; Owner: adwords
---
-
-REVOKE ALL ON TABLE keyword_structure FROM PUBLIC;
-REVOKE ALL ON TABLE keyword_structure FROM adwords;
-GRANT ALL ON TABLE keyword_structure TO adwords;
-GRANT SELECT ON TABLE keyword_structure TO web;
-
-
---
--- Name: text_ad_attributes; Type: ACL; Schema: public; Owner: adwords
---
-
-REVOKE ALL ON TABLE text_ad_attributes FROM PUBLIC;
-REVOKE ALL ON TABLE text_ad_attributes FROM adwords;
-GRANT ALL ON TABLE text_ad_attributes TO adwords;
-GRANT SELECT ON TABLE text_ad_attributes TO web;
-
-
---
--- Name: text_ad_performance; Type: ACL; Schema: public; Owner: adwords
---
-
-REVOKE ALL ON TABLE text_ad_performance FROM PUBLIC;
-REVOKE ALL ON TABLE text_ad_performance FROM adwords;
-GRANT ALL ON TABLE text_ad_performance TO adwords;
-GRANT SELECT ON TABLE text_ad_performance TO web;
-
-
---
--- Name: text_ad_structure; Type: ACL; Schema: public; Owner: adwords
---
-
-REVOKE ALL ON TABLE text_ad_structure FROM PUBLIC;
-REVOKE ALL ON TABLE text_ad_structure FROM adwords;
-GRANT ALL ON TABLE text_ad_structure TO adwords;
-GRANT SELECT ON TABLE text_ad_structure TO web;
-
-
---
 -- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: postgres
 --
-
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public REVOKE ALL ON TABLES  FROM PUBLIC;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public REVOKE ALL ON TABLES  FROM postgres;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT ON TABLES  TO web;
 
 CREATE TABLE database_schema (
        id SERIAL PRIMARY KEY,

@@ -3,7 +3,7 @@
 ADWORDS_FILE=`date +"%Y-%m-%d"`.Adwords.sql
 COMPRESSED_FILE=${ADWORDS_FILE}.gz
 
-pg_dump -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U adwords -f /tmp/${ADWORDS_FILE}
+pg_dumpall -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres -f /tmp/${ADWORDS_FILE}
 
 gzip -c -9 /tmp/${ADWORDS_FILE} > /tmp/${COMPRESSED_FILE}
 

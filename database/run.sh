@@ -1,4 +1,18 @@
-#!/bin/bash -xe
+#!/bin/bash -x
+
+# This script does a tonne of stuff before checking if a backup needs
+# to be restored.
+# Better to do this check early and then restore.
+#
+# New procedure:
+# 1. Do the DATA_CONTAINER/OLD_CONTAINER dance
+# 2. Get server running
+# 3. Check for web user
+# 4. If this user exists, assume all else is good
+# 5. If not then restore backup
+# 6. Update passwords
+# 7. Do schema update
+
 OLD_CONTAINER=$(docker ps -a | grep "cirrus-postgres" | awk {'print $1'} | head -1)
 DATA_CONTAINER=$(docker ps -a | grep "postgres-data" | awk {'print $1'} | head -1)
 
@@ -23,39 +37,26 @@ docker run -d --label "type=database" --name cirrus-postgres --volumes-from post
 
 # not ideal, but better solutions are complicated. 5 seconds may not be enough for a new install
 sleep 5
+# at this point we assume database server is running
 
-docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres' <<-EOF
-DO
-\$do\$
-BEGIN
-  IF NOT EXISTS (
-      SELECT *
-      FROM   pg_catalog.pg_user
-      WHERE  usename = 'adwords') THEN
-
-      CREATE ROLE adwords NOSUPERUSER LOGIN;
-   END IF;
-END
-\$do\$
+webuser=$(docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -t -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres' <<-EOF
+SELECT 1 FROM pg_roles WHERE rolname='web'
 EOF
+       )
+
+# the BIG assumption here is that if the 'web' account doesn't exist then the whole
+# db *can/should* be restored. Maybe delete existing to enable this?
+#if [ -z "$webuser" ];
+#then
+#    echo "web user doesn't exist"
+#    echo "restoring from backup"
+#    docker run --label "type=tmp" --link cirrus-postgres:postgres -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} -e POSTGRES_BACKUP_S3_BUCKET=${POSTGRES_BACKUP_S3_BUCKET} -e PGPASSWORD=${POSTGRES_PG_PASSWORD} backup /restore-database.sh
+#else
+#    echo "Web user exists"
+#    echo "Not restoring backup"
+#fi
 
 docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres' <<-EOF
-DO
-\$do\$
-BEGIN
-  IF NOT EXISTS (
-      SELECT *
-      FROM   pg_catalog.pg_user
-      WHERE  usename = 'web') THEN
-
-      CREATE ROLE web NOSUPERUSER LOGIN;
-   END IF;
-END
-\$do\$
-EOF
-
-docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres' <<-EOF
-ALTER ROLE adwords WITH PASSWORD '${ADWORDS_PG_PASSWORD}';
 ALTER ROLE web WITH PASSWORD '${WEB_PG_PASSWORD}';
 EOF
 
@@ -67,54 +68,20 @@ docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=$
 DO
 \$do\$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'web') THEN
+  IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'admin') THEN
    PERFORM dblink_exec('dbname=' || current_database()  -- current db
-                     , 'CREATE DATABASE web');
+                     , 'CREATE DATABASE admin');
   END IF;
 END
 \$do\$
 EOF
 
-docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres' <<-EOF
-DO
-\$do\$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'adwords') THEN
-   PERFORM dblink_exec('dbname=' || current_database()  -- current db
-                     , 'CREATE DATABASE adwords');
-  END IF;
-END
-\$do\$
-EOF
+cd sql/admin
 
-docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres' <<-EOF
-GRANT ALL PRIVILEGES ON DATABASE web TO web;
-GRANT ALL PRIVILEGES ON DATABASE adwords TO adwords;
-\connect adwords
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO web;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO web;
-
-EOF
-
-tables=$(docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${ADWORDS_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U adwords' <<-EOF
-\dt
-EOF
-)
-
-if [ "$tables" == "No relations found." ];
-then
-    echo "No relations found - loading backup"
-    docker run --label "type=tmp" --link cirrus-postgres:postgres -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} -e POSTGRES_BACKUP_S3_BUCKET=${POSTGRES_BACKUP_S3_BUCKET} -e PGPASSWORD=${POSTGRES_PG_PASSWORD} backup /restore-database.sh
-else
-    echo "Data already in place. Sweet"
-fi
-
-cd sql
-
-latest=$(docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${ADWORDS_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U adwords -t --no-align' <<-EOF
+latest=$(docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres -t --no-align admin' <<-EOF
 SELECT file FROM database_schema ORDER BY id DESC LIMIT 1
 EOF
-)
+      )
 
 echo "Latest file is $latest"
 
@@ -123,8 +90,29 @@ do
     if [[ "$f" > "$latest" ]];
     then
         echo "Running $f"
-        cat $f | docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${ADWORDS_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U adwords'
+        cat $f | docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres admin'
     else
         echo "Skipping $f"
     fi
+done
+
+cd ../adwords
+# now for each account do Adwords db stuff
+accounts=$(docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres -t --no-align admin' <<-EOF
+SELECT dbname FROM adwords_account
+EOF
+        )
+
+for account in $accounts
+do
+    for f in *.sql
+    do
+        if [[ "$f" > "$latest" ]];
+    then
+        echo "Running $f"
+        cat $f | docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres $account'
+    else
+        echo "Skipping $f"
+        fi
+    done
 done
