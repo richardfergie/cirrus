@@ -122,15 +122,8 @@ instance Yesod App where
       case mu of
        Nothing -> return AuthenticationRequired
        Just _ -> return Authorized
-    isAuthorized (OrganisationR oid) _ = do
-      mu <- maybeAuthId
-      case mu of
-       Nothing -> return AuthenticationRequired
-       Just aid -> do
-         x <- runDB $ getBy $ UniqueOrganisationUser oid aid
-         case x of
-          Nothing -> return $ Unauthorized "You are not part of this org"
-          Just _ -> return Authorized
+    isAuthorized (OrganisationR oid) _ = organisationUserCheck oid
+    isAuthorized (CreateContainerR oid) _ = organisationUserCheck oid
     -- Default to Authorized for now.
     isAuthorized _ _ = return Authorized
 
@@ -161,6 +154,16 @@ instance Yesod App where
             || level == LevelError
 
     makeLogger = return . appLogger
+
+organisationUserCheck orgid = do
+  mu <- maybeAuthId
+  case mu of
+   Nothing -> return AuthenticationRequired
+   Just aid -> do
+     x <- runDB $ getBy $ UniqueOrganisationUser orgid aid
+     case x of
+      Nothing -> return $ Unauthorized "You are not part of this org"
+      Just _ -> return Authorized
 
 -- How to run database actions.
 instance YesodPersist App where

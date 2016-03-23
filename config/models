@@ -10,6 +10,7 @@ User
 Organisation
    name Text
    admin UserId
+   datavolume String
    deriving Eq
    deriving Show
 OrganisationUser
