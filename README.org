@@ -44,6 +44,18 @@ I have something that does the jupyter notebook thing quite well (currently not 
 repository) but I need to integrate it with the database stuff in here. And I need to update the 
 database scripts here to work better with multiple accounts.
 
+/In fact the whole thing is a bit fucked when it comes to multi account setup. Bugger/
+
+*Hardcoded account numbers - what was I thinking?!?*
+
+**** Todos and decisions to fix this
+1. Decide how single user/multi accounts should be stored.
+   Same database/different database
+   Same tables/different tables within the same db
+2. Create db table to store account ids. And the db/schema details of where the reports are to be stored
+3. Switch scripts to use for loops to go over all account ids
+4. Check report naming convention to ensure nothing is overwritten
+
 *** Pushing to AdWords
 Plan A is to implement a job queue which the middle layer (magic business logic) can
 push to. Then workers will push the changes to the API.
