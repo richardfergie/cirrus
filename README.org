@@ -33,6 +33,17 @@ A generalised way of doing part 2 is *way* out of scope here.
 Cirrus is currently only a solution for part 1. And an incomplete one at that - there is
 quite a bit of data in AdWords that isn't downloaded (yet).
 
+*** Business magic
+I'm working on a "something" (want to say 'platform', but that is mega wankey) for part 2
+based on jupyter notebook.
+
+This will also fill in a gap in AdWords Scripts. Scripts are great for doing stuff but shit
+for analysis. Jupyter notebooks can cover both analysis and ops/doing very well.
+
+I have something that does the jupyter notebook thing quite well (currently not stored in this
+repository) but I need to integrate it with the database stuff in here. And I need to update the 
+database scripts here to work better with multiple accounts.
+
 *** Pushing to AdWords
 Plan A is to implement a job queue which the middle layer (magic business logic) can
 push to. Then workers will push the changes to the API.
