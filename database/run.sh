@@ -97,6 +97,53 @@ do
 done
 
 cd ../adwords
+#create users 
+accounts=$(docker run -i --label type=tmp --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm postgres:9.4 sh -c 'exec psql -t -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres admin'<<-EOF
+SELECT * FROM adwords_account
+EOF
+        )
+
+# only split on newlines
+IFS=$'\n'
+
+for account in $accounts
+do
+    dbname=$(echo $account | cut -d'|' -f3 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+    dbuser=$(echo $account | cut -d'|' -f4 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+    dbpassword=$(echo $account | cut -d'|' -f5 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+    docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} -e dbuser=${dbuser} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres' <<-EOF
+DO
+\$do\$
+BEGIN
+  IF NOT EXISTS (
+      SELECT *
+      FROM   pg_catalog.pg_user
+      WHERE  usename = '$dbuser') THEN
+      CREATE ROLE "$dbuser" NOSUPERUSER LOGIN;
+   END IF;
+END
+\$do\$
+EOF
+    docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} -e dbuser=${dbuser} -e dbpassword=${dbpassword} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres' <<-EOF
+ALTER ROLE "${dbuser}" WITH PASSWORD '$dbpassword';
+EOF
+    docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} -e dbname=${dbname} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres' <<-EOF
+DO
+\$do\$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = '${dbname}') THEN
+   PERFORM dblink_exec('dbname=' || current_database()  -- current db
+                     , 'CREATE DATABASE "${dbname}"');
+  END IF;
+END
+\$do\$
+EOF
+    docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} -e dbname=${dbname} -e dbuser=${dbuser} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres ${dbname}' <<-EOF
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO "${dbuser}";
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO "${dbuser}";
+EOF
+done
+
 # now for each account do Adwords db stuff
 accounts=$(docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres -t --no-align admin' <<-EOF
 SELECT dbname FROM adwords_account
@@ -105,12 +152,16 @@ EOF
 
 for account in $accounts
 do
+    latest=$(docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} -e ACCOUNT=${account} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres -t --no-align $ACCOUNT' <<-EOF
+SELECT file FROM database_schema ORDER BY id DESC LIMIT 1
+EOF
+      )
     for f in *.sql
     do
         if [[ "$f" > "$latest" ]];
     then
         echo "Running $f"
-        cat $f | docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres $account'
+        cat $f | docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} -e ACCOUNT=${account} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres $ACCOUNT'
     else
         echo "Skipping $f"
         fi
