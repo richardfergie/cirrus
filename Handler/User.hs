@@ -3,6 +3,7 @@ module Handler.User where
 import Import
 import System.Process
 import Prelude(init) --unsafe!!
+import Data.UUID.V4
 
 getUserR :: Handler Html
 getUserR = do
@@ -24,10 +25,11 @@ postCreateOrganisationR = do
   ((result, _), _) <- runFormPost orgForm
   case result of
    FormSuccess orgname -> do
-     let createvolumep = shell $ "docker create -v /home/jovyan jupyter/datascience-notebook /bin/true"
-     volumeid <- fmap init $ liftIO $ readCreateProcess createvolumep ""
+     volumeuuid <- liftIO $ nextRandom
+     let createvolumep = shell $ "docker create --name \""++(show volumeuuid)++"\" -v /home/jovyan jupyter/datascience-notebook /bin/true"
+     _ <- liftIO $ readCreateProcess createvolumep ""
      oid <- runDB $ do
-       orgid <- insert $ Organisation orgname aid volumeid
+       orgid <- insert $ Organisation orgname aid (show volumeuuid)
        insert $ OrganisationUser orgid aid
        return orgid
      -- also to do here:
