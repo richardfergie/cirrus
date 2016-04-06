@@ -332,8 +332,6 @@ CREATE SEQUENCE text_ad_attributes_id_seq
     CACHE 1;
 
 
-ALTER TABLE text_ad_attributes_id_seq OWNER TO adwords;
-
 --
 -- Name: text_ad_attributes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: adwords
 --
