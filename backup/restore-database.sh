@@ -7,7 +7,7 @@ then
     echo "Backup exists."
     echo "Restoring backup ${SQL_DUMP_FILE}"
     aws s3 cp s3://${POSTGRES_BACKUP_S3_BUCKET}/${SQL_DUMP_FILE} /tmp/all.sql.gz --region=us-east-1
-    zcat /tmp/adwords.sql.gz | psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres
+    zcat /tmp/all.sql.gz | psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres
     echo "Backup restored"
 else
     echo "Backup file does not exist"
