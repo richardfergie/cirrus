@@ -1,0 +1,5 @@
+<h1>Create Organistion
+
+<form method=post action=@{CreateOrganisationR} enctype=#{enctype}>
+  ^{orgform}
+  <button>Create Organisation
