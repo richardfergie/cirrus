@@ -19,5 +19,12 @@ OrganisationUser
    UniqueOrganisationUser organisation user
    deriving Show
    deriving Eq
-
+Account
+   organisation OrganisationId
+   clientId Text
+   dbname Text
+   dbuser Text
+   dbpassword Text
+   description Text
+   created UTCTime default=now()
  -- By default this file is used in Model.hs (which is imported by Foundation.hs)

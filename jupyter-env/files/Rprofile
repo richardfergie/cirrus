@@ -1,0 +1,23 @@
+# Use IC HTTP mirror
+options(repos=structure(c(CRAN="http://cran.ma.imperial.ac.uk")))
+
+# Connect to database
+queryAdWordsDB <- function(query) {
+  require(RPostgreSQL)
+  dbname <- Sys.getenv("DBNAME")
+  dbuser <- Sys.getenv("DBUSER")
+  dbpassword <- Sys.getenv("DBPASS")
+  dbhost <- Sys.getenv("POSTGRES_PORT_5432_TCP_ADDR")
+  dbport <- Sys.getenv("POSTGRES_PORT_5432_TCP_PORT")
+  drv <- dbDriver("PostgreSQL")
+  conn <- dbConnect(drv, host=dbhost,
+                    port=dbport,
+                    user=dbuser,
+                    password=dbpassword,
+                    dbname=dbname
+                    )
+  res <- dbGetQuery(conn,query)
+  dbDisconnect(conn)
+  dbUnloadDriver(drv)
+  return(res)
+}

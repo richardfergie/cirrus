@@ -123,7 +123,11 @@ instance Yesod App where
        Nothing -> return AuthenticationRequired
        Just _ -> return Authorized
     isAuthorized (OrganisationR oid) _ = organisationUserCheck oid
-    isAuthorized (CreateContainerR oid) _ = organisationUserCheck oid
+    isAuthorized (CreateContainerR oid accountid) _ = do
+      ou <- organisationUserCheck oid
+      case ou of
+        Authorized -> organisationAccountCheck oid accountid
+        otherwise -> organisationUserCheck oid
     -- Default to Authorized for now.
     isAuthorized _ _ = return Authorized
 
@@ -164,6 +168,14 @@ organisationUserCheck orgid = do
      case x of
       Nothing -> return $ Unauthorized "You are not part of this org"
       Just _ -> return Authorized
+
+organisationAccountCheck orgid accid = do
+  macc <- runDB $ get accid
+  case macc of
+   Nothing -> return $ Unauthorized "You cannot access this account"
+   Just (Account oid _ _ _ _ _ _) -> case orgid==oid of
+     False -> return $ Unauthorized "You cannot access this account"
+     True -> return $ Authorized
 
 -- How to run database actions.
 instance YesodPersist App where

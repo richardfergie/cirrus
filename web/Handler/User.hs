@@ -31,11 +31,12 @@ postCreateOrganisationR = do
      oid <- runDB $ do
        orgid <- insert $ Organisation orgname aid (show volumeuuid)
        insert $ OrganisationUser orgid aid
+       let insertrprofile = shell $ "docker run -t --volumes-from "++(show volumeuuid)++" -v /home/fergie/src/cirrus/jupyter-env/files:/tmp/files jupyter/datascience-notebook sh -c 'cp /tmp/files/Rprofile /home/jovyan/.Rprofile'"
+       _ <- liftIO $ readCreateProcess insertrprofile ""
        return orgid
      -- also to do here:
-     --   create data volume
-     --      docker create -v /home/jovyan jupyter/datascience-notebook /bin/true
-     --      and store resulting id for use in --volumes-from
+     --   Insert .Rprofile and .pythonrc into data volume
+     --      Store them in s3 and then just wget them into the volume
      --   create database (if not exist)
      --      unsure of how to do this.
      --      probably dockerise the whole thing?
@@ -51,4 +52,6 @@ orgForm :: Form Text
 orgForm = renderDivs $ id <$> areq textField "Organisation Name" Nothing
 
 getOrganisationR :: OrganisationId -> Handler Html
-getOrganisationR orgid = defaultLayout $(widgetFile "organisation")
+getOrganisationR orgid = do
+  accounts <- runDB $ selectList [AccountOrganisation ==. orgid] []
+  defaultLayout $(widgetFile "organisation")

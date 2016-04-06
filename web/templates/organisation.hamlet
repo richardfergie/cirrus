@@ -1,3 +1,8 @@
-<h1>Launch Notebook
+<h1>Launch Notebooks
 
-<a href=@{CreateContainerR orgid} class=btn>Launch! 
+$if null accounts
+  <p>You have no AdWords accounts. You cannot launch a notebook
+
+$else
+  $forall account <- accounts
+    <a href=@{CreateContainerR orgid (entityKey account)} class=btn>Launch #{accountDescription $ entityVal account}! 

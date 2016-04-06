@@ -12,14 +12,15 @@ import Prelude(init) -- unsafe!
 
 -- use the OrgId to link the right data volume
 -- and provide right env vars for db connectivity
-getCreateContainerR :: OrganisationId -> Handler ()
-getCreateContainerR orgid = do
+getCreateContainerR :: OrganisationId -> AccountId -> Handler ()
+getCreateContainerR orgid accountid = do
   uid <- requireAuthId
   org <- runDB $ get404 orgid -- should never 404
+  account <- runDB $ get404 accountid
   cport <- liftIO $ getUnassignedPort
   uuid <- liftIO $ nextRandom
   let volumeid = organisationDatavolume org
-  let cp = shell $ "docker run -d --volumes-from "++ volumeid ++" -p "++ (show cport)++":8888 jupyter/datascience-notebook start-notebook.sh --NotebookApp.base_url=/notebook/"++(toString uuid)
+  let cp = shell $ "docker run -t -d --link cirrus-postgres:postgres -e DBNAME=\""++(show $ accountDbname account)++"\" -e DBUSER=\""++(show $ accountDbuser account)++"\" -e DBPASS=\""++(show $ accountDbpassword account)++"\" --volumes-from "++ volumeid ++" -p "++ (show cport)++":8888 notebook start-notebook.sh --NotebookApp.base_url=/notebook/"++(toString uuid)
   -- need init to strip trailing newline
   dockerid <- fmap init $ liftIO $ readCreateProcess cp ""
   now <- liftIO $ getCurrentTime
