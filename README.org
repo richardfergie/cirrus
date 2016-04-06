@@ -16,12 +16,21 @@ If you want to proceed anyway then here is what you need:
    and other other secret information the will be needed when the application runs. 
    See secrets-example.sh for details.
 3. Run deploy-all.sh which ships stuff to the host and starts some bits up
-4. You need to set a cronjob to run daily-cron.sh daily. This updates the database with new data each day.
+4. This next bit is a bit messy. You need to add information on the account into
+   the adwords_account table in the admin database. Then you should run
+   database/run.sh again which will create the necessary databases
+5. You need to set a cronjob to run daily-cron.sh daily. This updates the database with new data each day.
     My cronjob looks like this: 
     
     0 4 * * * ~/daily-cron.sh | sed -e "s/^/$(date +'\%F \%T') /" >> /var/log/update.log 2>&1
 
 ** Still to do
+*** Short term
+1. Add in web frontend for admin. Will make it easier to add AdWords accounts
+   etc.
+2. Merge in jupyter-notebook proxy stuff to work with the web frontend
+
+*** Longer term
 The essence of any AdWords system is in three parts:
 
 1. Something that can get the data out of AdWords and store it in a way that is easily queryable
@@ -41,19 +50,7 @@ This will also fill in a gap in AdWords Scripts. Scripts are great for doing stu
 for analysis. Jupyter notebooks can cover both analysis and ops/doing very well.
 
 I have something that does the jupyter notebook thing quite well (currently not stored in this
-repository) but I need to integrate it with the database stuff in here. And I need to update the 
-database scripts here to work better with multiple accounts.
-
-/In fact the whole thing is a bit fucked when it comes to multi account setup. Bugger/
-
-*Hardcoded account numbers - what was I thinking?!?*
-
-**** Todos and decisions to fix this
-1. Decide how single user/multi accounts should be stored.
-   Same database/different database
-   Same tables/different tables within the same db
-2. Create db table to store account ids. And the db/schema details of where the reports are to be stored
-3. Switch scripts to use for loops to go over all account ids
+repository) but I need to integrate it with the database stuff in here
 
 *** Pushing to AdWords
 Plan A is to implement a job queue which the middle layer (magic business logic) can
