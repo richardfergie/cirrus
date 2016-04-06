@@ -1,0 +1,38 @@
+* Backup/restore
+There are two main backup actions to be taken:
+1. Backup the raw AdWords reports to s3
+2. Backup the database to s3
+
+The first is simple and is working fine (for now...).
+
+The second is proving more complicated:
++ Need to restore roles/globals as well as data
++ Smallest digital ocean box struggles a bit with the size of the sql file
+  (docker images seem to eat a lot of disk space)
++ Current solution is inelegant
+
+Let's think about what circumstances I want the system to be able to cope
+with. This will make it easier to come up with a viable solution.
+
+1. System is run for the first time (i.e. no backups exist to restore). System
+   should setup appropriate databases/tables
+2. System is run for the first time on a new machine (i.e. backups exist and
+   need to be restored). System should restore backups
+3. System is out of date. No backup needs to be restored, but database schema
+   changes may need to be made.
+
+There is overlap between steps one and three and between steps two and three.
+
+** Backup
+1. Use pg_dumpall - pipe to gzip to avoid big temp file
+
+Could do even better using pg_dumpall --globals then pg_dump on each database
+but this seems complicated. Advantage of this is that both backup and restore
+could be parallisable. 
+
+** Restore
+The restore script must do the following:
+1. Check to see if database exists and has expected data etc.
+2. If no, check to see if backup exists
+3. If yes (to step 2), restore backup.
+4. Check for, and apply any schema updates

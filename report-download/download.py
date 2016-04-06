@@ -312,7 +312,7 @@ if __name__ == '__main__':
   REFRESH_TOKEN = os.environ['ADWORDS_REFRESH_TOKEN']
   DEVELOPER_TOKEN = os.environ['ADWORDS_DEVELOPER_TOKEN']
   USER_AGENT = "eanalytica.com-report-downloader"
-  CLIENT_CUSTOMER_ID = "929-872-4012"
+  CLIENT_CUSTOMER_ID = os.environ["CLIENT_ID"] #"929-872-4012"
   args = sys.argv[1:]
   try:
     opts, args = getopt.getopt(args,"a",["all-time"])

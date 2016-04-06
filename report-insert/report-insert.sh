@@ -1,7 +1,11 @@
-#!/bin/bash -xe
-ACCOUNTID="929-872-4012"
+#!/bin/bash -e
 TODAY=`date +"%Y-%m-%d"`
-psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U adwords <<- EOF
+
+function updateAccountDatabase {
+    #assumes that the reports have all been downloaded
+    ACCOUNTID=$1
+    DB_NAME=$2
+    psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres "$DB_NAME"<<- EOF
   ALTER TABLE text_ad_performance ALTER COLUMN account_id SET DEFAULT '$ACCOUNTID';
   \copy text_ad_performance(campaign_id,ad_group_id,ad_id,keyword_id,day,network,clicks,impressions,cost,avgpos,conversions) FROM PROGRAM 'zcat /opt/reports/$ACCOUNTID:TextAdPerformance:$TODAY' CSV HEADER
   ALTER TABLE text_ad_performance ALTER COLUMN account_id DROP DEFAULT;
@@ -132,3 +136,19 @@ psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U adwo
   \echo KeywordStructure
 
 EOF
+}
+
+
+IFS=$'\n'
+
+accounts=$(psql -t -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres admin<<-EOF
+SELECT client_id,dbname FROM adwords_account
+EOF
+        )
+
+for account in $accounts
+do
+    client_id=$(echo $account | cut -d'|' -f1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+    db_name=$(echo $account | cut -d'|' -f2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+    updateAccountDatabase ${client_id} ${db_name}
+done
