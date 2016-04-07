@@ -1,4 +1,4 @@
-* Cirrus - An AdWords Data Platform
+* Cirrus - An AdWords Data Thing
 This repository contains a selection of tools for downloading AdWords
 data and inserting it into an SQL database.
 
