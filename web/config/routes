@@ -7,7 +7,9 @@
 / HomeR GET
 /user UserR GET
 /organisation/create CreateOrganisationR GET POST
-/organisation/overview/#OrganisationId OrganisationR GET
+/organisation/#OrganisationId/overview OrganisationR GET
+/organisation/#OrganisationId/createdb CreateDatabaseR POST
+/organisation/#OrganisationId/createaccount CreateAccountR GET POST
 
 /notebook/#UUID/*Texts ProxyR GET POST PUT DELETE PATCH
 

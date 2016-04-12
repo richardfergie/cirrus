@@ -4,6 +4,7 @@ import Import
 import System.Process
 import Prelude(init) --unsafe!!
 import Data.UUID.V4
+import qualified Crypto.Nonce as Nonce
 
 getUserR :: Handler Html
 getUserR = do
@@ -55,3 +56,52 @@ getOrganisationR :: OrganisationId -> Handler Html
 getOrganisationR orgid = do
   accounts <- runDB $ selectList [AccountOrganisation ==. orgid] []
   defaultLayout $(widgetFile "organisation")
+
+createAccountForm :: [Entity Database] -> Form (Text,DatabaseId,Text)
+createAccountForm [] = error "No databases exist"
+createAccountForm dbs = renderDivs $ (\clientid dbid description -> (clientid,dbid,description)) <$>
+  areq textField "AdWords Client ID" (Just "XXX-XXX-XXXX") <*>
+  areq (selectFieldList databases) "Database" Nothing <*>
+  areq textField "Description" Nothing
+  where databases = fmap (\x -> (databaseDescription $ entityVal x,entityKey x)) dbs
+
+createDatabaseForm :: Form Text
+createDatabaseForm = renderDivs $ id <$> areq textField "Description" Nothing
+
+getCreateAccountR :: OrganisationId -> Handler Html
+getCreateAccountR orgid = do
+  databases <- runDB $ selectList [DatabaseOrganisation ==. orgid] []
+  (accountform, accountenctype) <- generateFormPost $ createAccountForm databases
+  (databaseform,databaseenctype) <- generateFormPost createDatabaseForm
+  defaultLayout $(widgetFile "createaccount")
+
+postCreateDatabaseR :: OrganisationId -> Handler ()
+postCreateDatabaseR orgid = do
+  ((result, _), _) <- runFormPost createDatabaseForm
+  case result of
+   FormSuccess dbdescription -> do
+     gen <- liftIO $ Nonce.new
+     dbname <- liftIO $ Nonce.nonce128urlT gen
+     dbuser <- liftIO $ Nonce.nonce128urlT gen
+     dbpass <- liftIO $ Nonce.nonce128urlT gen
+     now <- liftIO $ getCurrentTime
+     -- do some docker magic to create the database
+     _ <- runDB $ insert $ Database orgid dbname dbuser dbpass dbdescription now
+     redirect $ CreateAccountR orgid
+   _ -> do
+     setMessage "Error in form. Failed to create database"
+     redirect $ CreateAccountR orgid
+
+postCreateAccountR :: OrganisationId -> Handler ()
+postCreateAccountR orgid = do
+  databases <- runDB $ selectList [DatabaseOrganisation ==. orgid] []
+  ((result, _), _) <- runFormPost (createAccountForm databases)
+  case result of
+   FormSuccess (clientid,dbid,description) -> do
+     now <- liftIO $ getCurrentTime
+     _ <- runDB $ insert $ Account orgid clientid dbid description now
+     setMessage "Your data is being imported. This may take a little while"
+     redirect $ OrganisationR orgid
+   _ -> do
+     setMessage "There was an error in the form. Account not created"
+     redirect $ CreateAccountR orgid

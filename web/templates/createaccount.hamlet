@@ -1,0 +1,17 @@
+<h1>Create Account
+
+$if null databases
+  <p>You must create a database before you create an account
+  <form method=post action=@{CreateDatabaseR orgid} enctype=#{databaseenctype}>
+    ^{databaseform}
+    <button>Create Database
+
+$else
+  <form method=post action=@{CreateAccountR orgid} enctype=#{accountenctype}>
+    ^{accountform}
+    <button>Create Account
+
+  <p>You can also create a new database
+  <form method=post action=@{CreateDatabaseR orgid} enctype=#{databaseenctype}>
+    ^{databaseform}
+    <button>Create Database

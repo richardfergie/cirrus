@@ -22,6 +22,11 @@ OrganisationUser
 Account
    organisation OrganisationId
    clientId Text
+   database DatabaseId
+   description Text
+   created UTCTime default=now()
+Database
+   organisation OrganisationId
    dbname Text
    dbuser Text
    dbpassword Text

@@ -93,6 +93,7 @@ library
                  , mime-mail
                  , blaze-html
                  , uuid
+                 , nonce  
 
 executable         jupyter-proxy
     if flag(library-only)
