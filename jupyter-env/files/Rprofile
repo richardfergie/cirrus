@@ -21,3 +21,17 @@ queryAdWordsDB <- function(query) {
   dbUnloadDriver(drv)
   return(res)
 }
+
+list_tables <- function() {
+  queryAdWordsDB("SELECT table_name
+                         FROM information_schema.tables
+                         WHERE table_schema='public'")
+}
+
+describe_table <- function(t) {
+  query <- paste("SELECT column_name
+                         FROM information_schema.columns
+                         WHERE table_schema = 'public'
+                         AND table_name   = '",t,"'", sep="")
+  queryAdWordsDB(query)
+}
