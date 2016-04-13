@@ -5,6 +5,7 @@ import System.Process
 import Data.UUID.V4
 import qualified Crypto.Nonce as Nonce
 import qualified Data.Text as T
+import Control.Concurrent (forkIO)
 
 getUserR :: Handler Html
 getUserR = do
@@ -69,7 +70,9 @@ getCreateAccountR orgid = do
   databases <- runDB $ selectList [DatabaseOrganisation ==. orgid] []
   (accountform, accountenctype) <- generateFormPost $ createAccountForm databases
   (databaseform,databaseenctype) <- generateFormPost createDatabaseForm
-  defaultLayout $(widgetFile "createaccount")
+  defaultLayout do
+    setTitle "Add Account"
+    $(widgetFile "createaccount")
 
 postCreateDatabaseR :: OrganisationId -> Handler ()
 postCreateDatabaseR orgid = do
@@ -98,9 +101,17 @@ postCreateAccountR orgid = do
    FormSuccess (clientid,dbid,description) -> do
      now <- liftIO $ getCurrentTime
      _ <- runDB $ insert $ Account orgid clientid dbid description now
-     -- do something to import data now
+     scrts <- fmap (secrets . appSettings) getYesod
+     _ <- liftIO $ forkIO $ downloadAndInsertReports (T.unpack clientid) scrts
      setMessage "Your data is being imported. This may take a little while"
      redirect $ OrganisationR orgid
    _ -> do
      setMessage "There was an error in the form. Account not created"
      redirect $ CreateAccountR orgid
+
+downloadAndInsertReports :: String -> Secrets -> IO ()
+downloadAndInsertReports clientid secrets = do
+  let downloadreports = shell $ "docker run -t --name adwords-download --volumes-from report-data -e ADOWRDS_CLIENT_ID=\""++(adwordsClientId secrets)++"\" -e ADWORDS_CLIENT_SECRET=\""++(adwordsClientSecret secrets)++"\" -e ADWORDS_DEVELOPER_TOKEN=\""++(adwordsDeveloperToken secrets)++"\" -e \""++(adwordsRefreshToken secrets)++"\" -e CLIENT_ID=\""++(clientid)++"\" report-downloader python /download.py --all-time"
+  _ <- readCreateProcess downloadreports ""
+  -- do something to insert reports into database
+  return ()
