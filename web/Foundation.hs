@@ -129,6 +129,8 @@ instance Yesod App where
         Authorized -> organisationAccountCheck oid accountid
         otherwise -> organisationUserCheck oid
     -- Default to Authorized for now.
+    isAuthorized (CreateDatabaseR oid) _ = organisationUserCheck oid
+    isAuthorized (CreateAccountR oid) _ = organisationUserCheck oid
     isAuthorized _ _ = return Authorized
 
     -- This function creates static content files in the static folder
