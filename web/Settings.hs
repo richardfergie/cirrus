@@ -26,6 +26,22 @@ development =
     False
 #endif
 
+data Secrets = Secrets {
+  postgresDBPassword :: String,
+  adwordsClientSecret :: String,
+  adwordsDeveloperToken :: String,
+  adwordsRefreshToken :: String,
+  adwordsClientId :: String
+                       } deriving (Show)
+
+instance FromJSON Secrets where
+  parseJSON (Object m) = Secrets <$> m .: "postgresDBPassword" <*>
+                            m .: "adwordsClientSecret" <*>
+                            m .: "adwordsDeveloperToken" <*>
+                            m .: "adwordsRefreshToken" <*>
+                            m .: "adwordsClientId"
+  parseJSON _ = mzero
+
 -- | Runtime settings to configure this application. These settings can be
 -- loaded from various sources: defaults, environment variables, config files,
 -- theoretically even a database.
@@ -61,6 +77,7 @@ data AppSettings = AppSettings
     -- ^ Copyright text to appear in the footer of the page
     , appAnalytics              :: Maybe Text
     -- ^ Google Analytics code
+    , secrets :: Secrets
     }
 
 instance FromJSON AppSettings where
@@ -86,6 +103,7 @@ instance FromJSON AppSettings where
 
         appCopyright              <- o .: "copyright"
         appAnalytics              <- o .:? "analytics"
+        secrets <- o .: "secrets"
 
         return AppSettings {..}
 

@@ -5,6 +5,7 @@ static-dir:     "_env:STATIC_DIR:static"
 host:           "_env:HOST:*4" # any IPv4 host
 port:           "_env:PORT:3000" # NB: The port `yesod devel` uses is distinct from this value. Set the `yesod devel` port from the command line.
 ip-from-header: "_env:IP_FROM_HEADER:false"
+postgresdbpass: "_env:POSTGRES_PG_PASSWORD:foo"
 
 # Default behavior: determine the application root from the request headers.
 # Uncomment to set an explicit approot
@@ -25,7 +26,7 @@ ip-from-header: "_env:IP_FROM_HEADER:false"
 
 database:
   user:     "_env:PGUSER:jupyter-proxy_LOWER"
-  password: "_env:PGPASS:jupyter-proxy"
+  password: "_env:PGPASS:jupADWORDS_CLIENT_IDyter-proxy"
   host:     "_env:PGHOST:localhost"
   port:     "_env:PGPORT:5432"
   database: "_env:PGDATABASE:jupyter-proxy_LOWER"
@@ -33,3 +34,10 @@ database:
 
 copyright: Insert copyright statement here
 #analytics: UA-YOURCODE
+
+secrets:
+  postgresDBPassword: "_env:POSTGRES_PG_PASSWORD:foo"
+  adwordsClientSecret: "_env:ADWORDS_CLIENT_SECRET:foo"
+  adwordsDeveloperToken: "_env:ADWORDS_DEVELOPER_TOKEN:foo"
+  adwordsRefreshToken: "_env:ADWORDS_REFRESH_TOKEN:foo"
+  adwordsClientId: "_env:ADWORDS_CLIENT_ID:foo"
