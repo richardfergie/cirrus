@@ -293,12 +293,11 @@ def downloadReports(reports,zeroimp,client,report_downloader):
 
 def convertAllTime(reps):
   for report in reps:
-    report['reportName'] = report['reportName']+'AllTime'
     report['dateRangeType'] = 'ALL_TIME'
   return(reps)
 
 def main(client,alltime):
-  report_downloader = client.GetReportDownloader(version='v201506')
+  report_downloader = client.GetReportDownloader(version='v201603')
   preports = performance_reports
   if alltime:
     preports = convertAllTime(performance_reports)
