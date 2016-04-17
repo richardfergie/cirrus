@@ -221,9 +221,10 @@ instance YesodAuthEmail App where
     sendVerifyEmail email _ verurl = do
         -- Print out to the console the verification email, for easier
         -- debugging.
-        if development
-          then liftIO $ putStrLn $ "Copy/ Paste this URL in your browser:" ++ verurl
-          else
+        --if development
+          --then
+            liftIO $ putStrLn $ "Copy/ Paste this URL in your browser:" ++ verurl
+         {- else
            -- Send email.
             liftIO $ renderSendMail (emptyMail $ Address Nothing "noreply")
               { mailTo = [Address Nothing email]
@@ -231,7 +232,7 @@ instance YesodAuthEmail App where
                 [ ("Subject", "Verify your email address")
                 ]
               , mailParts = [[textP, htmlP]]
-              }
+              } -}
       where
         textP = Part
             { partType = "text/plain; charset=utf-8"

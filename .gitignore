@@ -20,5 +20,6 @@ version
 web/deploy/config
 web/deploy/static
 web/deploy/web
+web/deploy/jupyter-proxy
 migrate/migrate/dbmigrate
 secrets.sh

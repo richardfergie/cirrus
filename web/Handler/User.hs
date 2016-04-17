@@ -70,7 +70,7 @@ getCreateAccountR orgid = do
   databases <- runDB $ selectList [DatabaseOrganisation ==. orgid] []
   (accountform, accountenctype) <- generateFormPost $ createAccountForm databases
   (databaseform,databaseenctype) <- generateFormPost createDatabaseForm
-  defaultLayout do
+  defaultLayout $ do
     setTitle "Add Account"
     $(widgetFile "createaccount")
 
@@ -111,7 +111,8 @@ postCreateAccountR orgid = do
 
 downloadAndInsertReports :: String -> Secrets -> IO ()
 downloadAndInsertReports clientid secrets = do
-  let downloadreports = shell $ "docker run -t --name adwords-download --volumes-from report-data -e ADOWRDS_CLIENT_ID=\""++(adwordsClientId secrets)++"\" -e ADWORDS_CLIENT_SECRET=\""++(adwordsClientSecret secrets)++"\" -e ADWORDS_DEVELOPER_TOKEN=\""++(adwordsDeveloperToken secrets)++"\" -e \""++(adwordsRefreshToken secrets)++"\" -e CLIENT_ID=\""++(clientid)++"\" report-downloader python /download.py --all-time"
+  let downloadreports = shell $ "docker run -t --volumes-from report-data -e ADOWRDS_CLIENT_ID=\""++(adwordsClientId secrets)++"\" -e ADWORDS_CLIENT_SECRET=\""++(adwordsClientSecret secrets)++"\" -e ADWORDS_DEVELOPER_TOKEN=\""++(adwordsDeveloperToken secrets)++"\" -e \""++(adwordsRefreshToken secrets)++"\" -e CLIENT_ID=\""++clientid++"\" report-downloader python /download.py --all-time"
   _ <- readCreateProcess downloadreports ""
-  -- do something to insert reports into database
+  let insertReports = shell $ "docker run --label \"type=tmp\" -t --volumes-from report-data --link cirrus-postgres:postgres -e PGPASSWORD=\""++(postgresDBPassword secrets)++"\" -e CLIENT_ID=\""++clientid++"\" reportinsert /report-insert.sh"
+  _ <- readCreateProcess insertReports ""
   return ()
