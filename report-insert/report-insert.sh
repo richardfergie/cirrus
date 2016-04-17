@@ -1,6 +1,16 @@
 #!/bin/bash -e
 TODAY=`date +"%Y-%m-%d"`
 
+DBNAME=$(psql -t -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres web<<-EOF
+SELECT database.dbname
+       FROM account
+       JOIN database
+       ON account.database = database.id
+       WHERE account.client_id = '${CLIENT_ID}'
+       LIMIT 1 --only a problem if client id occurs multiple times
+EOF
+)
+
 function updateAccountDatabase {
     #assumes that the reports have all been downloaded
     ACCOUNTID=$1
@@ -138,17 +148,4 @@ function updateAccountDatabase {
 EOF
 }
 
-
-IFS=$'\n'
-
-accounts=$(psql -t -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres admin<<-EOF
-SELECT client_id,dbname FROM adwords_account
-EOF
-        )
-
-for account in $accounts
-do
-    client_id=$(echo $account | cut -d'|' -f1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-    db_name=$(echo $account | cut -d'|' -f2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-    updateAccountDatabase ${client_id} ${db_name}
-done
+updateAccountDatabase ${CLIENT_ID} ${DBNAME}
