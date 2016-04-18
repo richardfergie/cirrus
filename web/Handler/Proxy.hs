@@ -5,9 +5,10 @@ import Import
 import Network.HTTP.ReverseProxy
 import Data.UUID
 import qualified Data.Map.Strict as Map
+import qualified Data.ByteString.Char8 as C
 
-generateApplication :: Manager -> Int -> Application
-generateApplication m p = waiProxyTo (const $ return $ WPRProxyDest $ ProxyDest "localhost" p) defaultOnExc m
+generateApplication :: Manager -> String -> Int -> Application
+generateApplication m ip p = waiProxyTo (const $ return $ WPRProxyDest $ ProxyDest (C.pack ip) p) defaultOnExc m
 
 proxyRequest :: UUID -> HandlerT App IO ()
 proxyRequest uuid = do
@@ -16,13 +17,14 @@ proxyRequest uuid = do
   maptvar <- fmap appContainerMap getYesod
   now <- liftIO $ getCurrentTime
   containers <- liftIO $ atomically $ readTVar maptvar
+  ipaddr <- fmap appDockerIPAddr getYesod
   case Map.lookup uuid containers of
    Nothing -> error "Cannot find uuid in map"
    Just c -> case (containerUser c == uid) of
      False -> error "User cannot access this container"
      True -> do
        let c' = c{ lastAction = now}
-           app :: Application = generateApplication httpm $ containerPort c
+           app :: Application = generateApplication httpm ipaddr $ containerPort c
        liftIO $ atomically $ modifyTVar' maptvar (\m -> Map.adjust (\_ -> c') uuid m)
        sendWaiApplication app
 

@@ -27,6 +27,7 @@ data App = App
     , appHttpManager :: Manager
     , appLogger      :: Logger
     , appContainerMap :: TVar (Map.Map UUID ContainerDetails)
+    , appDockerIPAddr :: String 
     }
 
 data ContainerDetails = ContainerDetails { dockerId :: String,

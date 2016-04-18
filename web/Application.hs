@@ -36,6 +36,7 @@ import Data.UUID
 import Data.Time
 import Prelude(init)
 import Control.Monad.Logger (runStdoutLoggingT)
+import System.Process
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
 import Handler.Common
@@ -87,6 +88,9 @@ makeFoundation appSettings = do
 
     appContainerMap <- newTVarIO Map.empty
 
+    let dockerip = "docker run ubuntu bash -c \"ip ro get 8.8.8.8 | grep -oP '(?<=via )([\\d\\.]+)'\""
+
+    appDockerIPAddr <- fmap init $ liftIO $ readCreateProcess (shell dockerip) ""
     _ <- forkIO $ forever $ do
       clearUpContainers appContainerMap
       threadDelay (1000000*60*5) --run every five minutes
