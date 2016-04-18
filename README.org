@@ -26,10 +26,10 @@ If you want to proceed anyway then here is what you need:
 
 ** Still to do
 *** Short term
-- [-] Add in web frontend [1/3]
+- [-] Add in web frontend [2/3]
   - [X] Merge in jupyter-notebook proxy stuff to work with the web frontend
   - [ ] Deployment script for website
-  - [ ] Admin interface to add new AdWords accounts
+  - [X] Admin interface to add new AdWords accounts
 - [ ] Better deployment instructions/walkthrough 
 - [ ] Example notebooks (this is possibly not short term)
 
