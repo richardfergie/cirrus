@@ -12,6 +12,7 @@
 # 5. If not then restore backup
 # 6. Update passwords
 # 7. Do schema update
+docker build --tag dbscripts .
 
 OLD_CONTAINER=$(docker ps -a | grep "cirrus-postgres" | awk {'print $1'} | head -1)
 DATA_CONTAINER=$(docker ps -a | grep "postgres-data" | awk {'print $1'} | head -1)
