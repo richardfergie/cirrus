@@ -55,7 +55,6 @@ getOrganisationR orgid = do
   defaultLayout $(widgetFile "organisation")
 
 createAccountForm :: [Entity Database] -> Form (Text,DatabaseId,Text)
-createAccountForm [] = error "No databases exist"
 createAccountForm dbs = renderDivs $ (\clientid dbid description -> (clientid,dbid,description)) <$>
   areq textField "AdWords Client ID" (Just "XXX-XXX-XXXX") <*>
   areq (selectFieldList databases) "Database" Nothing <*>
@@ -85,8 +84,9 @@ postCreateDatabaseR orgid = do
      dbpass <- liftIO $ Nonce.nonce128urlT gen
      now <- liftIO $ getCurrentTime
      pgpass <- fmap (postgresDBPassword . secrets . appSettings) getYesod
-     let dbcreate = shell $ "docker run -t --link cirrus-postgres:postgres -e PGPASSWORD=\""++pgpass++"\" dbscripts /scripts/newdb.sh \""++(T.unpack dbname)++"\" \""++(T.unpack dbuser)++"\" \""++(T.unpack dbpass)++"\""
-     _ <- liftIO $ readCreateProcess dbcreate ""
+     let dbcreate = "docker run -t --link cirrus-postgres:postgres -e PGPASSWORD=\""++pgpass++"\" dbscripts /scripts/newdb.sh \""++(T.unpack dbname)++"\" \""++(T.unpack dbuser)++"\" \""++(T.unpack dbpass)++"\""
+     $(logInfo) $ T.pack dbcreate
+     _ <- liftIO $ readCreateProcess (shell dbcreate) ""
      _ <- runDB $ insert $ Database orgid dbname dbuser dbpass dbdescription now
      redirect $ CreateAccountR orgid
    _ -> do
@@ -111,7 +111,7 @@ postCreateAccountR orgid = do
 
 downloadAndInsertReports :: String -> Secrets -> IO ()
 downloadAndInsertReports clientid secrets = do
-  let downloadreports = shell $ "docker run -t --volumes-from report-data -e ADOWRDS_CLIENT_ID=\""++(adwordsClientId secrets)++"\" -e ADWORDS_CLIENT_SECRET=\""++(adwordsClientSecret secrets)++"\" -e ADWORDS_DEVELOPER_TOKEN=\""++(adwordsDeveloperToken secrets)++"\" -e \""++(adwordsRefreshToken secrets)++"\" -e CLIENT_ID=\""++clientid++"\" report-downloader python /download.py --all-time"
+  let downloadreports = shell $ "docker run -t --volumes-from report-data -e ADWORDS_CLIENT_ID=\""++(adwordsClientId secrets)++"\" -e ADWORDS_CLIENT_SECRET=\""++(adwordsClientSecret secrets)++"\" -e ADWORDS_DEVELOPER_TOKEN=\""++(adwordsDeveloperToken secrets)++"\" -e ADWORDS_REFRESH_TOKEN=\""++(adwordsRefreshToken secrets)++"\" -e CLIENT_ID=\""++clientid++"\" report-downloader python /download.py --all-time"
   _ <- readCreateProcess downloadreports ""
   let insertReports = shell $ "docker run --label \"type=tmp\" -t --volumes-from report-data --link cirrus-postgres:postgres -e PGPASSWORD=\""++(postgresDBPassword secrets)++"\" -e CLIENT_ID=\""++clientid++"\" reportinsert /report-insert.sh"
   _ <- readCreateProcess insertReports ""
