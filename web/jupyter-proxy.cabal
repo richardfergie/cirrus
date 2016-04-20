@@ -93,7 +93,8 @@ library
                  , mime-mail
                  , blaze-html
                  , uuid
-                 , nonce  
+                 , nonce
+                 , yesod-auth-hashdb
 
 executable         jupyter-proxy
     if flag(library-only)
