@@ -18,7 +18,8 @@ If you want to proceed anyway then here is what you need:
 3. Run deploy-all.sh which ships stuff to the host and starts some bits up
 4. This next bit is a bit messy. You need to add information on the account into
    the adwords_account table in the admin database. Then you should run
-   database/run.sh again which will create the necessary databases
+   database/run.sh again which will create the necessary databases. *NB: This
+   step is out of date. This info is stored in the 'web' database*
 5. You need to set a cronjob to run daily-cron.sh daily. This updates the database with new data each day.
     My cronjob looks like this: 
     
