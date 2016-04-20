@@ -197,6 +197,14 @@ done
 
 }
 
+n=0
+until [ $n -ge 5 ]
+do
+    docker run -it --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'echo "\q" | psql -t -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres' && break
+      echo "Waiting for DB to start"
+      n=$[$n+1]
+      sleep 5
+done
 
 webuser=$(docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -t -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres' <<-EOF
 SELECT 1 FROM pg_roles WHERE rolname='web'
