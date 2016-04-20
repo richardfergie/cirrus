@@ -28,12 +28,12 @@ postCreateOrganisationR = do
   case result of
    FormSuccess orgname -> do
      volumeuuid <- liftIO $ nextRandom
-     let createvolumep = shell $ "docker create --name \""++(show volumeuuid)++"\" -v /home/jovyan jupyter/datascience-notebook /bin/true"
+     let createvolumep = shell $ "docker create --name \""++(show volumeuuid)++"\" -v /home/jovyan notebook /bin/true"
      _ <- liftIO $ readCreateProcess createvolumep ""
      oid <- runDB $ do
        orgid <- insert $ Organisation orgname aid (show volumeuuid)
        _ <- insert $ OrganisationUser orgid aid
-       let insertrprofile = "docker run -t --volumes-from "++(show volumeuuid)++" -v /home/fergie/src/cirrus/jupyter-env/files:/tmp/files jupyter/datascience-notebook sh -c 'cp /tmp/files/Rprofile /home/jovyan/.Rprofile'"
+       let insertrprofile = "docker run -t --volumes-from "++(show volumeuuid)++" notebook sh -c 'cp /opt/defaults/Rprofile /home/jovyan/.Rprofile'"
        $(logWarn) (T.pack insertrprofile)
        _ <- liftIO $ readCreateProcess (shell insertrprofile) ""
        return orgid
