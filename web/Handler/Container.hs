@@ -23,12 +23,12 @@ getCreateContainerR orgid accountid = do
   uuid <- liftIO $ nextRandom
   let volumeid = organisationDatavolume org
   let cp = "docker run -t -d --link cirrus-postgres:postgres -e DBNAME=\""++(T.unpack $ databaseDbname db)++"\" -e DBUSER=\""++(T.unpack $ databaseDbuser db)++"\" -e DBPASS=\""++(T.unpack $ databaseDbpassword db)++"\" --volumes-from "++ volumeid ++" -p "++ (show cport)++":8888 notebook start-notebook.sh --NotebookApp.base_url=/notebook/"++(toString uuid)
-  $(logInfo) $ T.pack cp
+  $(logWarn) $ T.pack cp
   -- need init to strip trailing newline
   dockerid <- fmap init $ liftIO $ readCreateProcess (shell cp) ""
   now <- liftIO $ getCurrentTime
   maptvar <- fmap appContainerMap getYesod
   liftIO $! atomically $ modifyTVar' maptvar (\m -> Map.insert uuid (ContainerDetails dockerid now uid cport) m)
   _ <- liftIO $ threadDelay 3000000
-  $(logInfo) $ "Container " <> (pack dockerid) <> " created"
+  $(logWarn) $ "Container " <> (pack dockerid) <> " created"
   redirect $ ProxyR uuid []

@@ -33,8 +33,9 @@ postCreateOrganisationR = do
      oid <- runDB $ do
        orgid <- insert $ Organisation orgname aid (show volumeuuid)
        _ <- insert $ OrganisationUser orgid aid
-       let insertrprofile = shell $ "docker run -t --volumes-from "++(show volumeuuid)++" -v /home/fergie/src/cirrus/jupyter-env/files:/tmp/files jupyter/datascience-notebook sh -c 'cp /tmp/files/Rprofile /home/jovyan/.Rprofile'"
-       _ <- liftIO $ readCreateProcess insertrprofile ""
+       let insertrprofile = "docker run -t --volumes-from "++(show volumeuuid)++" -v /home/fergie/src/cirrus/jupyter-env/files:/tmp/files jupyter/datascience-notebook sh -c 'cp /tmp/files/Rprofile /home/jovyan/.Rprofile'"
+       $(logWarn) (T.pack insertrprofile)
+       _ <- liftIO $ readCreateProcess (shell insertrprofile) ""
        return orgid
      -- also to do here:
      --   Insert .Rprofile and .pythonrc into data volume
@@ -85,7 +86,7 @@ postCreateDatabaseR orgid = do
      now <- liftIO $ getCurrentTime
      pgpass <- fmap (postgresDBPassword . secrets . appSettings) getYesod
      let dbcreate = "docker run -t --link cirrus-postgres:postgres -e PGPASSWORD=\""++pgpass++"\" dbscripts /scripts/newdb.sh \""++(T.unpack dbname)++"\" \""++(T.unpack dbuser)++"\" \""++(T.unpack dbpass)++"\""
-     $(logInfo) $ T.pack dbcreate
+     $(logWarn) $ T.pack dbcreate
      _ <- liftIO $ readCreateProcess (shell dbcreate) ""
      _ <- runDB $ insert $ Database orgid dbname dbuser dbpass dbdescription now
      redirect $ CreateAccountR orgid
