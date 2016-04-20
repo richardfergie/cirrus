@@ -1,11 +1,7 @@
-CREATE TABLE adwords_account (id SERIAL PRIMARY KEY,
-                              client_id VARCHAR NOT NULL,
-                              dbname VARCHAR NOT NULL,
-                              dbuser VARCHAR NOT NULL,
-                              dbpassword VARCHAR NOT NULL,
-                              description VARCHAR NOT NULL,
-                              created TIMESTAMP DEFAULT now()
-                             );
+-- updates to this schema are mainly handled by
+-- the web application
+-- Only changes that the application won't deal with
+-- (i.e. destructive changes will be included here)
 CREATE TABLE database_schema (
        id SERIAL PRIMARY KEY,
        description TEXT NOT NULL,

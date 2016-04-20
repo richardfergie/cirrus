@@ -96,26 +96,13 @@ END
 \$do\$
 EOF
 
-   # create admin database
-   echo "Creating admin database"
-   docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres' <<-EOF
-DO
-\$do\$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'admin') THEN
-   PERFORM dblink_exec('dbname=' || current_database()  -- current db
-                     , 'CREATE DATABASE admin');
-  END IF;
-END
-\$do\$
-EOF
-
-   # now perform schema updates on the admin database
+   # now perform schema updates on the web database
+   # most of these updates are handles by the web application
    cd sql/admin
 
    # when database_schema doesn't exist it errors but then $latest is ""
    # so stuff works as it should
-   latest=$(docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres -t --no-align admin' <<-EOF
+   latest=$(docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres -t --no-align web' <<-EOF
 SELECT file FROM database_schema ORDER BY id DESC LIMIT 1
 EOF
       )
@@ -127,7 +114,7 @@ EOF
     if [[ "$f" > "$latest" ]];
     then
         echo "Running $f"
-        cat $f | docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres admin'
+        cat $f | docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres web'
     else
         echo "Skipping $f"
     fi
@@ -136,9 +123,9 @@ EOF
    # now perform schema updates on the account data databases
    cd ../adwords
    # create account users
-   # users are stored in the admin database
-   accounts=$(docker run -i --label type=tmp --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm postgres:9.4 sh -c 'exec psql -t -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres admin'<<-EOF
-SELECT * FROM adwords_account
+   # users are stored in the web database
+   accounts=$(docker run -i --label type=tmp --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm postgres:9.4 sh -c 'exec psql -t -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres web'<<-EOF
+SELECT dbname,dbuser,dbpassword FROM database
 EOF
         )
 
@@ -147,9 +134,9 @@ EOF
 
    for account in $accounts
      do
-      dbname=$(echo $account | cut -d'|' -f3 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-      dbuser=$(echo $account | cut -d'|' -f4 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-      dbpassword=$(echo $account | cut -d'|' -f5 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+      dbname=$(echo $account | cut -d'|' -f1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+      dbuser=$(echo $account | cut -d'|' -f2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+      dbpassword=$(echo $account | cut -d'|' -f3 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
       docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} -e dbuser=${dbuser} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres' <<-EOF
 DO
@@ -185,14 +172,14 @@ EOF
      done
 
 # now for each account do Adwords db stuff
-accounts=$(docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres -t --no-align admin' <<-EOF
-SELECT dbname FROM adwords_account
+accounts=$(docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres -t --no-align web' <<-EOF
+SELECT dbname FROM database
 EOF
         )
 
 for account in $accounts
 do
-    latest=$(docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} -e ACCOUNT=${account} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres -t --no-align $ACCOUNT' <<-EOF
+    latest=$(docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} -e ACCOUNT=${account} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres -t --no-align "$account"' <<-EOF
 SELECT file FROM database_schema ORDER BY id DESC LIMIT 1
 EOF
       )
@@ -201,7 +188,7 @@ EOF
         if [[ "$f" > "$latest" ]];
     then
         echo "Running $f"
-        cat $f | docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} -e ACCOUNT=${account} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres $ACCOUNT'
+        cat $f | docker run -i --label "type=tmp" --link cirrus-postgres:postgres -e PGPASSWORD=${POSTGRES_PG_PASSWORD} -e ACCOUNT=${account} --rm "postgres:9.4" sh -c 'exec psql -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres "${account}"'
     else
         echo "Skipping $f"
         fi
