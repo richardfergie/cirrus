@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 module Foundation where
 
 import Import.NoFoundation
@@ -10,10 +11,6 @@ import Yesod.Core.Types     (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import qualified Data.CaseInsensitive as CI
 import qualified Data.Text.Encoding as TE
-import Network.Mail.Mime
-import qualified Data.Text.Lazy.Encoding
-import Text.Shakespeare.Text (stext)
-import Text.Blaze.Html.Renderer.Utf8 (renderHtml)
 import qualified Data.Map.Strict as Map
 import Data.UUID
 -- | The foundation datatype for your application. This can be a good place to
@@ -128,7 +125,7 @@ instance Yesod App where
       ou <- organisationUserCheck oid
       case ou of
         Authorized -> organisationAccountCheck oid accountid
-        otherwise -> organisationUserCheck oid
+        _ -> organisationUserCheck oid
     -- Default to Authorized for now.
     isAuthorized (CreateDatabaseR oid) _ = organisationUserCheck oid
     isAuthorized (CreateAccountR oid) _ = organisationUserCheck oid
@@ -162,6 +159,7 @@ instance Yesod App where
 
     makeLogger = return . appLogger
 
+organisationUserCheck :: OrganisationId -> Handler AuthResult
 organisationUserCheck orgid = do
   mu <- maybeAuthId
   case mu of
@@ -172,6 +170,7 @@ organisationUserCheck orgid = do
       Nothing -> return $ Unauthorized "You are not part of this org"
       Just _ -> return Authorized
 
+organisationAccountCheck :: OrganisationId -> AccountId -> Handler AuthResult
 organisationAccountCheck orgid accid = do
   macc <- runDB $ get accid
   case macc of

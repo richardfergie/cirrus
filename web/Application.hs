@@ -31,7 +31,6 @@ import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
                                              toLogStr)
 import qualified Data.Map.Strict as Map
 import Control.Concurrent (forkIO, threadDelay)
-import System.Process
 import Data.UUID
 import Data.Time
 import Prelude(init)
