@@ -28,11 +28,11 @@ If you want to proceed anyway then here is what you need:
 ** Still to do
 *** Short term
 - [ ] Fix keyword performance report bug - not downloading/inserting sometimes
-- [-] Add in web frontend [2/4]
+- [-] Add in web frontend [4/5]
   - [X] Merge in jupyter-notebook proxy stuff to work with the web frontend
-  - [ ] Deployment script for website
+  - [X] Deployment script for website
   - [X] Admin interface to add new AdWords accounts
-  - [ ] Either setup email verification OR make login that doesn't require it
+  - [X] Either setup email verification OR make login that doesn't require it
   - [ ] Currently deployment relies on the `stack` buildtool being
     installed - the web binary is compiled on the local machine. I guess this is
     not desirable.

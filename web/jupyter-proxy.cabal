@@ -25,6 +25,7 @@ library
                      Handler.Proxy
                      Handler.Container
                      Handler.User
+                     Handler.NewUser
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT

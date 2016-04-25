@@ -5,7 +5,7 @@ import Import.NoFoundation
 import Database.Persist.Sql (ConnectionPool, runSqlPool)
 import Text.Hamlet          (hamletFile)
 import Text.Jasmine         (minifym)
-import Yesod.Auth.HashDB (HashDBUser(..), authHashDB)
+import Yesod.Auth.HashDB (HashDBUser(..), authHashDB, getAuthIdHashDB)
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
@@ -201,13 +201,7 @@ instance YesodAuth App where
     -- You can add other plugins like BrowserID, email or OAuth here
     authPlugins _ = [authHashDB (Just . UniqueUser)]
 
-    getAuthId creds = runDB $ do
-        x <- insertBy $ User (credsIdent creds) Nothing Nothing False
-        return $ Just $
-            case x of
-                Left (Entity userid _) -> userid -- newly added user
-                Right userid -> userid -- existing user
-
+    getAuthId creds = getAuthIdHashDB AuthR (Just . UniqueUser) creds
     authHttpManager = error "Email doesn't need an HTTP manager"
 
 instance HashDBUser User where

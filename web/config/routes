@@ -5,6 +5,7 @@
 /robots.txt RobotsR GET
 
 / HomeR GET
+/newuser NewUserR GET POST
 /user UserR GET
 /organisation/create CreateOrganisationR GET POST
 /organisation/#OrganisationId/overview OrganisationR GET

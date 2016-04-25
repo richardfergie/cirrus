@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-source ../../secrets.sh
+source ../secrets.sh
 
 function jsonValue() {
   KEY=$1
