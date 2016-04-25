@@ -10,4 +10,4 @@ services:
 before_install:
 - docker pull fpco/stack-build:lts-5.12
 - cd web && docker build --tag cirrusbuild .
-- docker run cirrusbuild /bin/sh -c'cd /build && stack install' 
+- docker run cirrusbuild /bin/sh -c 'cd /build && stack install' 

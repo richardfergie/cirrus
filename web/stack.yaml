@@ -3,6 +3,6 @@ packages:
 - '.'
 resolver: lts-5.12
 docker:
-  enable: true
+  enable: false
   repo: "fpco/stack-build"
   auto-pull: true
