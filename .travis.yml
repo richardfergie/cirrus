@@ -15,7 +15,7 @@ before_install:
 - mkdir -p $HOME/stack-cache
 - mkdir -p $HOME/artifacts
 - cd web && docker build --tag cirrusbuild .
-- docker run -v $HOME/stack-cache:/root/.stack -v $HOME/artifacts:/root/.local/bin cirrusbuild /bin/sh -c 'cd /build && stack install'
+- docker run -v $HOME/stack-cache:/root/.stack -v $HOME/artifacts:/root/.local/bin cirrusbuild /bin/sh -c 'cd /build && stack install --allow-different-user'
 - cp $HOME/artifacts/jupyter-proxy deploy/jupyter-proxy
 - mkdir -p deploy/config
 - cp config/{routes,settings.yml,models,favicon.ico,robots.txt} deploy/config/
