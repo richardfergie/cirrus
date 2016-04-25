@@ -7,7 +7,17 @@ language: ruby
 services:
   - docker
 
+cache:
+  directories:
+  - $HOME/stack-cache
+
 before_install:
-- docker pull fpco/stack-build:lts-5.12
+- mkdir -p $HOME/stack-cache
+- mkdir -p $HOME/artifacts
 - cd web && docker build --tag cirrusbuild .
-- docker run cirrusbuild /bin/sh -c 'cd /build && stack install' 
+- docker run -v $HOME/stack-cache:/root/.stack -v $HOME/artifacts:/root/.local/bin cirrusbuild /bin/sh -c 'cd /build && stack install'
+- cp $HOME/artifacts/jupyter-proxy deploy/jupyter-proxy
+- mkdir -p deploy/config
+- cp config/{routes,settings.yml,models,favicon.ico,robots.txt} deploy/config/
+- cp -R static deploy/
+- docker build --tag cirruswww .
