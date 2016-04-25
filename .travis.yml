@@ -24,6 +24,6 @@ script:
 - cp -R static deploy/
 - docker build --tag eanalytica/cirrus-web:latest .
 
-deploy
+deploy:
 - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 - docker push eanalytica/cirrus-web
