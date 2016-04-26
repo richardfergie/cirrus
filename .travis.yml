@@ -10,20 +10,20 @@ services:
 cache:
   directories:
   - $HOME/stack-cache
+  - $HOME/stack-work
 
 install:
 - mkdir -p $HOME/stack-cache
 - mkdir -p $HOME/artifacts
+- mkdir -p $HOME/stack-work
 - cd web && docker build --tag cirrusbuild .
 
 script:
-- docker run -v $HOME/stack-cache:/root/.stack -v $HOME/artifacts:/root/.local/bin cirrusbuild /bin/sh -c 'cd /build && stack install --allow-different-user'
+- docker run -v $HOME/stack-cache:/root/.stack -v $HOME/.stack-work:/build/.stack-work -v $HOME/artifacts:/root/.local/bin cirrusbuild /bin/sh -c 'cd /build && stack install --allow-different-user'
 - cp $HOME/artifacts/jupyter-proxy deploy/jupyter-proxy
 - mkdir -p deploy/config
 - cp config/{routes,settings.yml,models,favicon.ico,robots.txt} deploy/config/
 - cp -R static deploy/
 - docker build --tag eanalytica/cirrus-web:latest .
-
-after-success:
 - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 - docker push eanalytica/cirrus-web
