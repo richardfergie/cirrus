@@ -21,13 +21,17 @@ If you want to proceed anyway then here is what you need:
    database/run.sh again which will create the necessary databases. *NB: This
    step is out of date. This info is stored in the 'web' database*
 5. You need to set a cronjob to run daily-cron.sh daily. This updates the database with new data each day.
-    My cronjob looks like this: 
+   My cronjob looks like this: 
     
-    0 4 * * * ~/daily-cron.sh | sed -e "s/^/$(date +'\%F \%T') /" >> /var/log/update.log 2>&1
+    ~0 4 * * * ~/daily-cron.sh | sed -e "s/^/$(date +'\%F \%T') /" >> /var/log/update.log 2>&1~
+
+   Be aware, if you copy and paste this; Github may format the quotation marks in a way that causes it to break
 
 ** Still to do
 *** Short term
-- [ ] Fix keyword performance report bug - not downloading/inserting sometimes
+- [X] Fix keyword performance report bug - not downloading/inserting
+  sometimes. *This isn't actually a problem. Keyword performance is downloaded
+  in the Text Ad Report to see kwd/ad performance
 - [-] Add in web frontend [4/5]
   - [X] Merge in jupyter-notebook proxy stuff to work with the web frontend
   - [X] Deployment script for website
