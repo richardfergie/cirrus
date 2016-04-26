@@ -24,6 +24,6 @@ script:
 - mkdir -p deploy/config
 - cp config/{routes,settings.yml,models,favicon.ico,robots.txt} deploy/config/
 - cp -R static deploy/
-- docker build --tag eanalytica/cirrus-web:latest .
+- cd deploy && docker build --tag eanalytica/cirrus-web:latest .
 - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 - docker push eanalytica/cirrus-web
