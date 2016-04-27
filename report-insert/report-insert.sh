@@ -1,6 +1,8 @@
 #!/bin/bash -e
 TODAY=`date +"%Y-%m-%d"`
 
+echo ClientID is ${CLIENT_ID}
+
 DBNAME=$(psql -t -h "$POSTGRES_PORT_5432_TCP_ADDR" -p "$POSTGRES_PORT_5432_TCP_PORT" -U postgres web<<-EOF
 SELECT database.dbname
        FROM account
@@ -10,6 +12,8 @@ SELECT database.dbname
        LIMIT 1 --only a problem if client id occurs multiple times
 EOF
 )
+
+echo Database is ${DBNAME}
 
 function updateAccountDatabase {
     #assumes that the reports have all been downloaded
